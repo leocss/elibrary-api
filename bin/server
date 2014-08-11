@@ -1,0 +1,2 @@
+// Bootstrap the application and start listening for request.
+require('../bootstrap/application').run();

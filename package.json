@@ -1,0 +1,27 @@
+{
+  "name": "elibrary-api",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "express": "~4",
+    "morgan": "~1",
+    "body-parser": "~1",
+    "method-override": "~2",
+    "bcrypt-nodejs": "~0",
+    "bookshelf": "~0.7",
+    "knex": "~0.6",
+    "mysql": "~2.4",
+    "lodash": "~2.0",
+    "winston": "~0.7",
+    "bluebird": "~2.2",
+    "moment": "~2.7",
+    "casual": "~1.4",
+    "hat": "0.0.3"
+  },
+  "devDependencies": {
+    "mocha": "~1.20",
+    "should": "~4.0",
+    "request": "~0.18",
+    "expect.js": "~0.3"
+  }
+}
