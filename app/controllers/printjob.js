@@ -4,18 +4,30 @@
 
 module.exports = {
   /**
+   * Endpoint to get a list of printjobs.
+   *
    * Usage:
    * GET /printjobs
-   * TODO GET /printjobs?limit=5
-   * TODO GET /printjobs?after=[2daysago]
-   *
-   * Endpoint to get a list of printjobs.
    *
    * @param context
    * @param request
    * @param response
    */
   getJobs: function(context, request, response) {
+
+  },
+
+  /**
+   * Endpoint to get a list of printjobs.
+   *
+   * Usage:
+   * GET /printjobs
+   *
+   * @param context
+   * @param request
+   * @param response
+   */
+  getJob: function(context, request, response) {
 
   },
 

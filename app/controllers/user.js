@@ -71,6 +71,27 @@ module.exports = {
    * @param request
    * @param response
    */
+  createPrintJob: function(context, request, response) {
+
+  },
+
+  /**
+   * Delete a print job
+   *
+   * @param context
+   * @param request
+   * @param response
+   */
+  deletePrintJob: function(context, request, response) {
+
+  },
+
+  /**
+   *
+   * @param context
+   * @param request
+   * @param response
+   */
   getFavouriteBooks: function(context, request, response) {
 
   }

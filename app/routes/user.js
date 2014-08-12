@@ -11,4 +11,6 @@ module.exports = function(app) {
   app.put('/users/:id/photo', app.apiHandler(user.uploadPhoto));
   app.get('/users/:id/favourite_books', app.apiHandler(user.getFavouriteBooks));
   app.get('/users/:id/printjobs', app.apiHandler(user.getPrintJobs));
+  app.post('/users/:id/printjobs', app.apiHandler(user.createPrintJob));
+  app.delete('/users/:id/printjobs/:job_id', app.apiHandler(user.deletePrintJob));
 };
