@@ -4,24 +4,25 @@
 
 var base = require('./base');
 
-var UserModel = base.Model.extend({
-  tableName: 'users',
+var PostModel = base.Model.extend({
+  tableName: 'posts',
   hasTimestamps: true,
 
   permitted: [
     'id',
-    'first_name',
-    'last_name',
+    'title',
+    'slug',
+    'content',
     'created_at',
     'updated_at'
   ]
 });
 
-var UserCollection = base.Collection.extend({
-  model: UserModel
+var PostCollection = base.Collection.extend({
+  model: PostModel
 });
 
 module.exports = {
-  User: UserModel,
-  Users: UserCollection
+  Post: PostModel,
+  Posts: PostCollection
 };
