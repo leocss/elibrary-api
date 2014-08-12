@@ -16,8 +16,10 @@ for installation on the platform you wish to deploy.
 
 2. Launch your terminal and `cd` into wherever this directory is on your computer then run the commands below.
 
-    $ npm install
-    $ npm start
+```bash
+$ npm install
+$ npm start
+```
 
 Setup
 =============
@@ -30,11 +32,13 @@ GET /books?access_token=[ACCESS_TOKEN]
 
 You should see the following result.
 
-    {
-        "id": "53153513",
-        "name": "NodeJS for Dummies",
-        ....
-    }
+```json
+{
+    "id": "53153513",
+    "name": "NodeJS for Dummies",
+    ....
+}
+```
 
 Credits
 ==================
