@@ -1,6 +1,8 @@
 E-Library API Server
 ==========================
 
+[Note: This repository is still in incubation stage]
+
 This is the api server that powers the e-library project created
 
 by the "League Of Extra Ordinary Computer Science Students" (LEOCSS) FUTMINNA.
