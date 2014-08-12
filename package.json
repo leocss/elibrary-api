@@ -2,6 +2,9 @@
   "name": "elibrary-api",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "node bin/server"
+  },
   "dependencies": {
     "express": "~4",
     "morgan": "~1",
