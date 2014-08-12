@@ -8,7 +8,7 @@ by the "League Of Extra Ordinary Computer Science Students" (LEOCSS) FUTMINNA.
 Installation
 ================
 
-1. Go over to (http://nodejs.org)[NodeJS Official Website] and grab yourself a copy of nodejs. Follow their guide
+1. Go over to [NodeJS Official Website](http://nodejs.org) and grab yourself a copy of nodejs. Follow their guide
 
 for installation on the platform you wish to deploy.
 
