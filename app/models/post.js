@@ -12,7 +12,10 @@ var PostModel = base.Model.extend({
     'id',
     'title',
     'slug',
-    'content',
+    'author_id',
+    'content_text',
+    'content_parsed',
+    'updated_by',
     'created_at',
     'updated_at'
   ]

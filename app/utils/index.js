@@ -2,6 +2,8 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
+var _ = require('lodash');
+
 module.exports = {
   /**
    *
@@ -9,15 +11,21 @@ module.exports = {
    * @param superCls
    * @returns {*}
    */
-  extendObject: function(baseCls, superCls) {
+  extendObject: function (baseCls, superCls) {
     baseCls.prototype = Object.create(superCls.prototype);
     baseCls.prototype.constructor = baseCls;
+    baseCls.methods = baseCls.prototype;
 
     return baseCls;
   },
 
-  take: function(object, properties) {
-    Object(properties).forEach(function(property) {
+  createObject: function(cls) {
+    cls.methods = cls.prototype;
+    return cls;
+  },
+
+  take: function (object, properties) {
+    Object(properties).forEach(function (property) {
       if (!object.hasOwnProperty(property)) {
         object[property] = null;
       }

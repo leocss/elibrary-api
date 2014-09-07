@@ -9,8 +9,8 @@ module.exports = function(app) {
   app.delete('/users/:id', app.apiHandler(user.deleteUser));
   app.get('/users/:id', app.apiHandler(user.getUser));
   app.put('/users/:id/photo', app.apiHandler(user.uploadPhoto));
-  app.get('/users/:id/favourite_books', app.apiHandler(user.getFavouriteBooks));
-  app.get('/users/:id/printjobs', app.apiHandler(user.getPrintJobs));
-  app.post('/users/:id/printjobs', app.apiHandler(user.createPrintJob));
-  app.delete('/users/:id/printjobs/:job_id', app.apiHandler(user.deletePrintJob));
+  app.get('/users/:id/favourite-books', app.apiHandler(user.getFavouriteBooks));
+  app.get('/users/:id/print-jobs', app.apiHandler(user.getPrintJobs));
+  app.post('/users/:id/print-jobs', app.apiHandler(user.createPrintJob));
+  app.delete('/users/:id/print-jobs/:jobId', app.apiHandler(user.deletePrintJob));
 };

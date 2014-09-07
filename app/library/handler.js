@@ -5,7 +5,7 @@
 var _ = require('lodash'),
   Promise = require('bluebird'),
   models = require('../models'),
-  errors = require('./error'),
+  errors = require('../errors'),
   Context = require('./context');
 
 module.exports = function(app) {
@@ -13,7 +13,6 @@ module.exports = function(app) {
    * Adds a utility apiHandler() method to express app.
    * Creates a context that contains relevant & extra information
    * about a request and attaches it to the controller being requested.
-   *
    *
    * @param controller
    * @returns {Function}
@@ -36,12 +35,12 @@ module.exports = function(app) {
         } else {
           // Seems some other unidentified error occurred..
           // Lets throw the generic ApiError
-          throw new errors.ApiError('An unexpected error occurred. Try again.' + error);
+          throw error;
         }
       }).catch(errors.ApiError, function(error) {
         return response.json(error.status, {
           error: {
-            message: error.message
+            message: error.message || error
           }
         })
       });

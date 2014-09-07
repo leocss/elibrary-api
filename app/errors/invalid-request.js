@@ -3,7 +3,7 @@
  */
 
 var util = require('util'),
-  utils = require('../../toolbox/utils'),
+  utils = require('../utils'),
   ApiError = require('./api');
 
 /**

@@ -6,20 +6,20 @@
     "start": "node bin/server"
   },
   "dependencies": {
-    "express": "~4",
-    "morgan": "~1",
-    "body-parser": "~1",
-    "method-override": "~2",
-    "bcrypt-nodejs": "~0",
-    "bookshelf": "~0.7",
-    "knex": "~0.6",
-    "mysql": "~2.4",
-    "lodash": "~2.0",
-    "winston": "~0.7",
+    "bcryptjs": "~2.0",
     "bluebird": "~2.2",
-    "moment": "~2.7",
+    "body-parser": "~1",
+    "bookshelf": "~0.7",
     "casual": "~1.4",
-    "hat": "0.0.3"
+    "express": "~4",
+    "hat": "0.0.3",
+    "knex": "~0.6",
+    "lodash": "~2.0",
+    "method-override": "~2",
+    "moment": "~2.7",
+    "morgan": "~1",
+    "mysql": "~2.4",
+    "winston": "~0.7"
   },
   "devDependencies": {
     "mocha": "~1.20",

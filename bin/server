@@ -1,3 +1,10 @@
 // Bootstrap the application and start listening for request.
 var app = require('../app/bootstrap/application');
 app.run();
+
+console.log([
+    "\n\nElibrary API Server [Running]",
+    "\n==============================",
+    "\nPort: " + app.config.server.port,
+    "\nMode: " + app.config.environment
+].join(''))

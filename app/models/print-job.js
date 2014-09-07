@@ -9,8 +9,13 @@ var PrintJobModel = base.Model.extend({
   hasTimestamps: true,
 
   permitted: [
-    'id'
-  ]
+    'id',
+    'user_id'
+  ],
+
+  user: function() {
+    return this.belongsTo(require('./user').User, 'user_id');
+  }
 });
 
 var PrintJobCollection = base.Collection.extend({

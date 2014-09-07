@@ -8,12 +8,13 @@ var express = require('express'),
   config = require('../config');
 
 var app = express();
+app.config = config;
 
 app.use(methodOverride());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-require('../library/toolbox/handler')(app);
+require('../library/handler')(app);
 require('../routes')(app);
 
 app.run = function() {

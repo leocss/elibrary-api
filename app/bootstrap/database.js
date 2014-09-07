@@ -15,6 +15,6 @@ var bookshelfConnection = knex(config.database.main),
 bookshelfInstance.plugin('visibility');
 bookshelfInstance.plugin('virtuals');
 
-module.export = {
+module.exports = {
   bookshelf: bookshelfInstance
 };

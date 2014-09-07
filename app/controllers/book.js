@@ -1,6 +1,9 @@
 /**
  * @author Laju Morrison <morrelinko@gmail.com>
  */
+var _ = require('lodash'),
+  utils = require('../utils'),
+  models = require('../models');
 
 module.exports = {
   /**
@@ -14,7 +17,7 @@ module.exports = {
    * @param response
    */
   getBooks: function(context, request, response) {
-
+    return models.Book.all();
   },
 
   /**
@@ -27,36 +30,64 @@ module.exports = {
    * @param response
    */
   getBook: function(context, request, response) {
-
+    return models.Book.findById(request.params.id)
   },
 
   /**
+   * Adds a new book
+   * Usage:
+   *  POST /books [Headers Content-type: application/json]
+   *  {
+   *    "title": "Learning Javascript",
+   *    "author": "John Doe",
+   *    "edition": "1",
+   *    "has_hard_copy": true,
+   *    "has_soft_copy": true,
+   *    "copies": 5,
+   *    "published_at": "2014-06"
+   *  }
+   *
    *
    * @param context
    * @param request
    * @param response
    */
   addBook: function(context, request, response) {
-
+    return models.Book.create(_.pick(request.body, [
+      'title', 'author', 'edition', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
+    ]));
   },
 
   /**
+   * Updates a book
+   * Usage:
+   *  POST /books/53545
+   *  {
+   *    "title": "New title"
+   *  }
+   *
    *
    * @param context
    * @param request
    * @param response
    */
   updateBook: function(context, request, response) {
-
+    return models.Book.update(_.pick(request.body, [
+      'title', 'author', 'edition', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
+    ]));
   },
 
   /**
+   * Deletes a book record from the library
+   * Note: This doesn't actually remove the book from the library physically.. (^_^ )!!
+   *  Usage:
+   *  DELETE /books/23423
    *
    * @param context
    * @param request
    * @param response
    */
   deleteBook: function(context, request, response) {
-
+    return models.Book.destroy({id: request.params.id});
   }
 };

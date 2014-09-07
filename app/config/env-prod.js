@@ -8,6 +8,10 @@ module.exports = {
     port: 4000
   },
 
+  application: {
+    salt: 'generate-a-salt'
+  },
+
   database: {
     main: {
       client: 'mysql',

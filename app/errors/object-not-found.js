@@ -2,7 +2,7 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var utils = require('../toolbox/utils'),
+var utils = require('../utils'),
   ApiError = require('./api');
 
 /**
