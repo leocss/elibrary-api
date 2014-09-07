@@ -14,6 +14,8 @@ var BookModel = base.Model.extend({
     'title',
     'author',
     'edition',
+    'overview',
+    'preview_image',
     'has_hard_copy',
     'has_soft_copy',
     'copies',

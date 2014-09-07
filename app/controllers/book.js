@@ -13,10 +13,10 @@ module.exports = {
    * TODO GET /books?only=23,44,56 to get only books with id 23,44 and 56
    *
    * @param {Context} context
-   * @param request
-   * @param response
+   * @param req
+   * @param res
    */
-  getBooks: function(context, request, response) {
+  getBooks: function (context, req, res) {
     return models.Book.all();
   },
 
@@ -26,11 +26,11 @@ module.exports = {
    *  GET /books/413243
    *
    * @param {Context} context
-   * @param request
-   * @param response
+   * @param req
+   * @param res
    */
-  getBook: function(context, request, response) {
-    return models.Book.findById(request.params.id)
+  getBook: function (context, req, res) {
+    return models.Book.findById(req.params.id)
   },
 
   /**
@@ -49,12 +49,12 @@ module.exports = {
    *
    *
    * @param context
-   * @param request
-   * @param response
+   * @param req
+   * @param res
    */
-  addBook: function(context, request, response) {
-    return models.Book.create(_.pick(request.body, [
-      'title', 'author', 'edition', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
+  addBook: function (context, req, res) {
+    return models.Book.create(_.pick(req.body, [
+      'title', 'author', 'edition', 'overview', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
     ]));
   },
 
@@ -66,14 +66,13 @@ module.exports = {
    *    "title": "New title"
    *  }
    *
-   *
    * @param context
-   * @param request
-   * @param response
+   * @param req
+   * @param res
    */
-  updateBook: function(context, request, response) {
-    return models.Book.update(_.pick(request.body, [
-      'title', 'author', 'edition', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
+  updateBook: function (context, req, res) {
+    return models.Book.update(req.params.id, _.pick(req.body, [
+      'title', 'author', 'edition', 'overview', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
     ]));
   },
 
@@ -81,13 +80,21 @@ module.exports = {
    * Deletes a book record from the library
    * Note: This doesn't actually remove the book from the library physically.. (^_^ )!!
    *  Usage:
-   *  DELETE /books/23423
+   *    DELETE /books/23423
    *
    * @param context
-   * @param request
-   * @param response
+   * @param req
+   * @param res
    */
-  deleteBook: function(context, request, response) {
-    return models.Book.destroy({id: request.params.id});
+  deleteBook: function (context, req, res) {
+    return models.Book.destroy({id: req.params.id}).then(function () {
+      return {id: req.params.id};
+    });
+  },
+
+  uploadPreviewImage: function (context, req, res) {
+    return {
+      // TODO implement
+    };
   }
 };
