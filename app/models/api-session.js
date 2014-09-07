@@ -2,7 +2,8 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var base = require('./base');
+var moment = require('moment'),
+  base = require('./base');
 
 var ApiSessionModel = base.Model.extend({
   tableName: 'api_sessions',
@@ -17,7 +18,19 @@ var ApiSessionModel = base.Model.extend({
     'life_time',
     'created_at',
     'updated_at'
-  ]
+  ],
+
+  expireTime: function () {
+    return moment(this.get('created_at')).add(this.get('life_time'), 'seconds');
+  },
+
+  /**
+   * Helper to check if a session has expired.
+   * @returns {*}
+   */
+  isExpired: function () {
+    return moment().isAfter(this.expireTime());
+  }
 });
 
 

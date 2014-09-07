@@ -10,7 +10,7 @@ by the "League Of Extra Ordinary Computer Science Students" (LEOCSS) FUTMINNA.
 Installation
 ================
 
-1. Go over to [NodeJS Official Website](http://nodejs.org) and grab yourself a copy of nodejs. Follow their guide
+1. Go over to [NodeJS Official Website](http://nodejs.org) and grab yourself a copy of NodeJS. Follow their guide
 
 for installation on the platform you wish to deploy.
 
@@ -23,8 +23,6 @@ $ npm start
 
 Setup
 =============
-
-[TODO: add a way to generate a client]
 
 Open up your Rest-Client tool or You can use curl on the terminal and try to access these endpoints
 

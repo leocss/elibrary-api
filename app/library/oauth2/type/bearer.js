@@ -2,7 +2,8 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var error = require('../../error');
+var _ = require('lodash'),
+  errors = require('../../../errors');
 
 /**
  * Bearer token type.
@@ -62,9 +63,11 @@ var BearerTokenType = {
     if (!accessToken) {
       // Common! we've given you more than enough chance to verify your identity...
       // "SECURITY!!! show this client the exit :)"
-      throw new error.InvalidTokenError('missing');
+      throw new errors.InvalidTokenError('missing');
     }
 
     return accessToken;
   }
 };
+
+module.exports = BearerTokenType;
