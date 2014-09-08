@@ -9,9 +9,14 @@ var BookModel = base.Model.extend({
   tableName: 'books',
   hasTimestamps: true,
 
+  virtuals: {
+
+  },
+
   permitted: [
     'id',
     'title',
+    'category_id',
     'author',
     'edition',
     'overview',
@@ -24,10 +29,14 @@ var BookModel = base.Model.extend({
     'updated_at'
   ],
 
-  saving: function(model, attributes, options) {
+  saving: function (model, attributes, options) {
     if (this.hasChanged('published_at') && this.get('published_at').split('-').length == 2) {
       this.set('published_at', moment(this.get('published_at'), 'YYYY-MM').format('YYYY-MM-DD HH:mm:ss'));
     }
+  },
+
+  category: function () {
+    return this.belongsTo(require('./book-category').BookCategory, 'category_id');
   }
 });
 

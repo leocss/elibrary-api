@@ -6,6 +6,7 @@ var auth = require('../controllers/auth');
 
 module.exports = function (app) {
   app.post('/oauth2/token', app.apiHandler(auth.generateAccessToken, {oauth2: false}));
+  app.post('/oauth2/invalidate-token', app.apiHandler(auth.invalidateAccessToken, {oauth2: false}));
 
   // I will not be implementing the endpoints after this line.
   // But whoever wants to extend and improve this system can

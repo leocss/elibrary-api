@@ -28,6 +28,7 @@ module.exports = {
    * @returns {*}
    */
   generateAccessToken: function (context, req, res) {
+    console.log(req.body);
     var input, identifier, grant;
     return new Promise(
       function (resolve, reject) {
@@ -50,6 +51,16 @@ module.exports = {
         // All done, its time to give the client an access token..
         return token;
       });
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   */
+  invalidateAccessToken: function(context, req, res) {
+
   },
 
   verifyAccessToken: function () {

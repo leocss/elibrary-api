@@ -60,7 +60,7 @@ module.exports = function (app) {
           return controller.call(controller, context, request, response, next);
         }).then(function (result) {
           // If everything goes well, the data is outputted
-          return response.json(result);
+          return response.json({data: result});
         }).catch(function (error) {
           // Handle Errors: ensure all errors are converted to ApiError
           if (error instanceof models.Model.NotFoundError) {

@@ -17,7 +17,9 @@ module.exports = {
    * @param res
    */
   getBooks: function (context, req, res) {
-    return models.Book.all();
+    return models.Book.all({
+      withRelated: ['category']
+    });
   },
 
   /**
@@ -30,7 +32,9 @@ module.exports = {
    * @param res
    */
   getBook: function (context, req, res) {
-    return models.Book.findById(req.params.id)
+    return models.Book.findById(req.params.id, {
+      withRelated: ['category']
+    })
   },
 
   /**
