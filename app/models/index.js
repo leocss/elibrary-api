@@ -4,6 +4,7 @@
 
 module.exports = {
   Book: require('./book').Book,
+  Books: require('./book').Books,
   PrintJob: require('./print-job').PrintJob,
   User: require('./user').User,
   ApiClient: require('./api-client').ApiClient,

@@ -33,7 +33,7 @@ module.exports = function (app) {
           // Retrieve the access token from the request
           return models.ApiSession.findOne({
             token: token
-          }).catch(models.ApiSession.NotFoundError, function () {
+          }).catch(models.ApiSession.NotFoundError,function () {
             // Couldn't find any session associated with this access token
             throw new errors.InvalidTokenError('invalid');
           }).then(function (result) {
@@ -60,6 +60,16 @@ module.exports = function (app) {
           return controller.call(controller, context, request, response, next);
         }).then(function (result) {
           // If everything goes well, the data is outputted
+
+          if (options.paginate && result.models.length > 20) {
+            return response.json({
+              data: result,
+              pager: {
+
+              }
+            });
+          }
+
           return response.json({data: result});
         }).catch(function (error) {
           // Handle Errors: ensure all errors are converted to ApiError
@@ -75,7 +85,8 @@ module.exports = function (app) {
         }).catch(errors.ApiError, function (error) {
           return response.json(error.status, {
             error: {
-              message: error.message || error
+              message: error.message || error,
+              code: error.code
             }
           })
         });

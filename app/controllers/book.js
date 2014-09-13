@@ -17,9 +17,43 @@ module.exports = {
    * @param res
    */
   getBooks: function (context, req, res) {
-    return models.Book.all({
-      withRelated: ['category']
+    var model = new models.Books({}, {withRelated: ['category']}).query(function (query) {
+      if (!_.isUndefined(req.query.filter)) {
+        // ?filter=5_latest or ?filter=5_most_borrowed
+        var parts = req.query.filter.split('_').reverse(),
+          limit = parseInt(parts.pop()),
+          type = parts.reverse().join('_');
+
+        console.log(limit, type);
+        switch (type) {
+          case 'most_borrowed':
+            query.orderBy('borrow_count', 'desc');
+            break;
+          case 'latest':
+            query.orderBy('id', 'desc');
+            break;
+        }
+
+        query.limit(limit);
+      }
     });
+
+
+    return model.fetch();
+  },
+
+  /**
+   * Endpoint to get a random book
+   * Usage:
+   *  GET /books/random
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  getRandomBook: function (context, req, res) {
+    return models.Book.findOne({id: 1});
   },
 
   /**
