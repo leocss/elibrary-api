@@ -2,7 +2,13 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var models = require('../models');
+var _ = require('lodash'),
+  Promise = require('bluebird'),
+  fse = Promise.promisifyAll(require('fs-extra')),
+  errors = require('../errors'),
+  models = require('../models');
+
+var PRINT_JOB_DIR = __dirname + '/../../public/files/printjobs';
 
 module.exports = {
   /**
@@ -13,9 +19,9 @@ module.exports = {
    * @param request
    * @param response
    */
-  getUser: function(context, request, response) {
+  getUser: function (context, request, response) {
     return models.User.findById(request.params.id)
-      .then(function(user) {
+      .then(function (user) {
         return user.toJSON();
       });
   },
@@ -24,7 +30,7 @@ module.exports = {
    * @param context
    * @param request
    */
-  updateUser: function(context, request) {
+  updateUser: function (context, request) {
     return models.User.update(_.pick(request.body, [
       'first_name', 'last_name', 'email', 'address',
       'gender', 'matric_number', 'school', 'course'
@@ -35,7 +41,7 @@ module.exports = {
    * @param context
    * @param request
    */
-  createUser: function(context, request) {
+  createUser: function (context, request) {
     return models.User.create(_.pick(request.body, [
       'first_name', 'last_name', 'email', 'address',
       'gender', 'matric_number', 'school', 'course'
@@ -47,7 +53,7 @@ module.exports = {
    * @param context
    * @param request
    */
-  uploadPhoto: function(context, request) {
+  uploadPhoto: function (context, request) {
 
   },
 
@@ -56,7 +62,7 @@ module.exports = {
    * @param context
    * @param request
    */
-  deleteUser: function(context, request) {
+  deleteUser: function (context, request) {
     return models.User.delete({id: request.params.id});
   },
 
@@ -69,11 +75,17 @@ module.exports = {
    * @param request
    * @param response
    */
-  getPrintJobs: function(context, request, response) {
-    return models.User.findById(request.params.id, {
-      withRelated: ['printJobs']
-    }).then(function(user) {
+  getPrintJobs: function (context, request, response) {
+    return models.User.findById(request.params.user_id, {
+      withRelated: ['printJobs', 'printJobs.documents']
+    }).then(function (user) {
       return user.related('printJobs');
+    });
+  },
+
+  getPrintJob: function (context, req, res) {
+    return models.PrintJob.findById(req.params.job_id, {
+      withRelated: ['documents']
     });
   },
 
@@ -83,18 +95,82 @@ module.exports = {
    * @param request
    * @param response
    */
-  createPrintJob: function(context, request, response) {
+  createPrintJob: function (context, req, res) {
+    _.forEach(['name'], function (item) {
+      if (!_.has(req.body, item)) {
+        throw new errors.MissingParamError([item]);
+      }
 
+      if (_.isNull(req.body[item])) {
+        throw new errors.ApiError(item + ' field cannot be empty.');
+      }
+    });
+
+    return models.PrintJob.create({
+      user_id: req.params.user_id,
+      name: req.body.name
+    });
   },
 
   /**
    * Uploads documents for print jobs
    *
    * @param context
-   * @param request
+   * @param req
+   * @param res
    */
-  uploadPrintJobDocuments: function(context, request) {
+  uploadPrintJobDocument: function (context, req, res) {
+    if (_.isUndefined(req.files.document)) {
+      throw new errors.MissingParamError(['document']);
+    }
 
+    var savename = req.params.user_id + '-' + req.files.document.name;
+    return fse.moveAsync(req.files.document.path, PRINT_JOB_DIR + '/' + savename).then(function () {
+      // Delete temp file after moving to main location
+      return fse.removeAsync(req.files.document.path);
+    }).then(function () {
+      return models.PrintJobDocument.create({
+        user_id: req.params.user_id,
+        job_id: req.params.job_id,
+        file_name: req.files.document.originalname,
+        file_path: savename,
+        file_size: req.files.document.size,
+        file_type: req.files.document.mimetype
+      });
+    }).catch(function (error) {
+      throw new errors.ApiError(error.message || error);
+    });
+  },
+
+  /**
+   * Deletes a document from a print job
+   * Usage:
+   *  DELETE /users/2/print-jobs/3/documents/555
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  deletePrintJobDocument: function (context, req, res) {
+    var document;
+
+    models.PrintJobDocument.findById(req.params.document_id).then(function (result) {
+      document = result;
+      return result.destroy();
+    }).then(function () {
+      return fse.removeAsync(PRINT_JOB_DIR + '/' + document.get('file_path'));
+    }).then(function () {
+      return document.get('id');
+    });
+  },
+
+  getPrintJobDocument: function (context, req, res) {
+    return models.PrintJobDocument.findById(req.params.document_id);
+  },
+
+  getPrintJobDocuments: function (context, req, res) {
+    return models.PrintJobDocument.findMany({where: {job_id: req.params.job_id}});
   },
 
   /**
@@ -104,10 +180,10 @@ module.exports = {
    * @param request
    * @param response
    */
-  deletePrintJob: function(context, request, response) {
+  deletePrintJob: function (context, request, response) {
     return models.PrintJob.destroy({
       id: request.params.job_id,
-      user_id: request.params.id
+      user_id: request.params.user_id
     });
   },
 
@@ -117,7 +193,7 @@ module.exports = {
    * @param request
    * @param response
    */
-  getFavouriteBooks: function(context, request, response) {
+  getFavouriteBooks: function (context, request, response) {
 
   }
 };

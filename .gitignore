@@ -1,4 +1,10 @@
 node_modules/
 .idea/
-app/storage/logs
+app/storage/logs/
 !app/storage/logs/.gitkeep
+public/files/printjobs
+!public/files/printjobs/.gitkeep
+public/files/books/files/
+!public/files/books/files/.gitkeep
+public/files/books/images/
+!public/files/books/images/.gitkeep

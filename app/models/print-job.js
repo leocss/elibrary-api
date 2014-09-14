@@ -10,11 +10,16 @@ var PrintJobModel = base.Model.extend({
 
   permitted: [
     'id',
-    'user_id'
+    'user_id',
+    'name'
   ],
 
-  user: function() {
+  user: function () {
     return this.belongsTo(require('./user').User, 'user_id');
+  },
+
+  documents: function () {
+    return this.hasMany(require('./print-job-document').PrintJobDocument, 'job_id');
   }
 });
 

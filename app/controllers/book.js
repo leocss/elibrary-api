@@ -92,7 +92,8 @@ module.exports = {
    */
   addBook: function (context, req, res) {
     return models.Book.create(_.pick(req.body, [
-      'title', 'author', 'edition', 'overview', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
+      'title', 'author', 'edition', 'overview',
+      'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
     ]));
   },
 
@@ -128,6 +129,22 @@ module.exports = {
     return models.Book.destroy({id: req.params.id}).then(function () {
       return {id: req.params.id};
     });
+  },
+
+  issueBook: function (context, req, res) {
+
+  },
+
+  retrieveBook: function (context, req, res) {
+
+  },
+
+  checkinBook: function (context, req, res) {
+
+  },
+
+  checkoutBook: function(context, req, res) {
+
   },
 
   uploadPreviewImage: function (context, req, res) {

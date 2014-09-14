@@ -14,7 +14,13 @@ var PrintJobDocumentModel = base.Model.extend({
     'file_name',
     'file_path',
     'file_size'
-  ]
+  ],
+
+  virtuals: {
+    url: function() {
+      return '/files/printjobs/' + this.get('file_path');
+    }
+  }
 });
 
 var PrintJobDocumentCollection = base.Collection.extend({

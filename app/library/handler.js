@@ -22,15 +22,15 @@ module.exports = function (app) {
   app.apiHandler = function (controller, options) {
     options = _.merge({oauth2: true}, options);
 
-    return function (request, response, next) {
+    return function (req, res, next) {
       var context, accessTokenString, session;
 
-      context = new Context(request);
+      context = new Context(req);
 
-      return Promise.method(bearerTokenType.getAccessToken)(request)
+      return Promise.method(bearerTokenType.getAccessToken)(req)
         .then(function (token) {
           accessTokenString = token;
-          // Retrieve the access token from the request
+          // Retrieve the access token from the req
           return models.ApiSession.findOne({
             token: token
           }).catch(models.ApiSession.NotFoundError,function () {
@@ -57,12 +57,12 @@ module.exports = function (app) {
           return true;
         }).then(function () {
           // Execute the controller method and get its returned data
-          return controller.call(controller, context, request, response, next);
+          return controller.call(controller, context, req, res, next);
         }).then(function (result) {
           // If everything goes well, the data is outputted
 
           if (options.paginate && result.models.length > 20) {
-            return response.json({
+            return res.json({
               data: result,
               pager: {
 
@@ -70,7 +70,7 @@ module.exports = function (app) {
             });
           }
 
-          return response.json({data: result});
+          return res.json({data: result});
         }).catch(function (error) {
           // Handle Errors: ensure all errors are converted to ApiError
           if (error instanceof models.Model.NotFoundError) {
@@ -83,7 +83,7 @@ module.exports = function (app) {
             throw error;
           }
         }).catch(errors.ApiError, function (error) {
-          return response.json(error.status, {
+          return res.json(error.status, {
             error: {
               message: error.message || error,
               code: error.code
