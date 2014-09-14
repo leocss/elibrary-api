@@ -132,7 +132,7 @@ module.exports = {
       return models.PrintJobDocument.create({
         user_id: req.params.user_id,
         job_id: req.params.job_id,
-        file_name: req.files.document.originalname,
+        file_name: req.body.name || req.files.document.originalname,
         file_path: savename,
         file_size: req.files.document.size,
         file_type: req.files.document.mimetype

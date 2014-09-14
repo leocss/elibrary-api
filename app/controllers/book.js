@@ -17,14 +17,13 @@ module.exports = {
    * @param res
    */
   getBooks: function (context, req, res) {
-    var model = new models.Books({}, {withRelated: ['category']}).query(function (query) {
+    var model = new models.Book({}).query(function (query) {
       if (!_.isUndefined(req.query.filter)) {
         // ?filter=5_latest or ?filter=5_most_borrowed
         var parts = req.query.filter.split('_').reverse(),
           limit = parseInt(parts.pop()),
           type = parts.reverse().join('_');
 
-        console.log(limit, type);
         switch (type) {
           case 'most_borrowed':
             query.orderBy('borrow_count', 'desc');
@@ -38,8 +37,7 @@ module.exports = {
       }
     });
 
-
-    return model.fetch();
+    return model.fetchAll({withRelated: ['category']});
   },
 
   /**
