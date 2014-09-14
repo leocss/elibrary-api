@@ -1,5 +1,7 @@
 node_modules/
 .idea/
+app/storage/tmp/
+!app/storage/tmp/.gitkeep
 app/storage/logs/
 !app/storage/logs/.gitkeep
 public/files/printjobs
