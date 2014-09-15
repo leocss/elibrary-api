@@ -28,7 +28,6 @@ module.exports = {
    * @returns {*}
    */
   generateAccessToken: function (context, req, res) {
-    console.log(req.body);
     var input, identifier, grant;
     return new Promise(
       function (resolve, reject) {
@@ -59,7 +58,7 @@ module.exports = {
    * @param req
    * @param res
    */
-  invalidateAccessToken: function(context, req, res) {
+  invalidateAccessToken: function (context, req, res) {
 
   },
 

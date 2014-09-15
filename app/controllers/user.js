@@ -2,7 +2,8 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var _ = require('lodash'),
+var path = require('path'),
+  _ = require('lodash'),
   Promise = require('bluebird'),
   fse = Promise.promisifyAll(require('fs-extra')),
   errors = require('../errors'),
@@ -159,7 +160,7 @@ module.exports = {
       document = result;
       return result.destroy();
     }).then(function () {
-      return fse.removeAsync(PRINT_JOB_DIR + '/' + document.get('file_path'));
+      return fse.removeAsync(path.join(PRINT_JOB_DIR + '/', document.get('file_path')));
     }).then(function () {
       return document.get('id');
     });

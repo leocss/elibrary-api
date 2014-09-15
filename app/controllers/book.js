@@ -51,7 +51,10 @@ module.exports = {
    * @returns {*}
    */
   getRandomBook: function (context, req, res) {
-    return models.Book.findOne({id: 1});
+    return new models.Book({}).query(function(query) {
+      query.orderByRaw('rand()');
+      query.limit(1);
+    }).fetch();
   },
 
   /**
