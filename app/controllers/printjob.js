@@ -3,6 +3,7 @@
  */
 
 var _ = require('lodash'),
+  hat = require('hat'),
   errors = require('../errors'),
   models = require('../models');
 
@@ -56,6 +57,7 @@ module.exports = {
       }
     });
 
-    return models.PrintJob.create(_.pick(req.body, ['user_id', 'name']));
+    req.body.id = req.body.user_id + '-' + hat();
+    return models.PrintJob.create(_.pick(req.body, ['id', 'user_id', 'name']), {method: 'insert'});
   }
 };

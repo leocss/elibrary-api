@@ -4,6 +4,7 @@
 
 var path = require('path'),
   _ = require('lodash'),
+  hat = require('hat'),
   Promise = require('bluebird'),
   fse = Promise.promisifyAll(require('fs-extra')),
   errors = require('../errors'),
@@ -108,9 +109,10 @@ module.exports = {
     });
 
     return models.PrintJob.create({
+      id: req.body.user_id + '-' + hat(),
       user_id: req.params.user_id,
       name: req.body.name
-    });
+    }, {method: 'insert'});
   },
 
   /**
@@ -197,4 +199,5 @@ module.exports = {
   getFavouriteBooks: function (context, request, response) {
 
   }
-};
+}
+;

@@ -30,22 +30,33 @@ module.exports = function (app) {
       return Promise.method(bearerTokenType.getAccessToken)(req)
         .then(function (token) {
           accessTokenString = token;
-          // Retrieve the access token from the req
-          return models.ApiSession.findOne({
-            token: token
-          }).catch(models.ApiSession.NotFoundError,function () {
-            // Couldn't find any session associated with this access token
-            throw new errors.InvalidTokenError('invalid');
-          }).then(function (result) {
-            session = result;
-            // Validate the access token
-            if (session.isExpired()) {
-              // Ensure access session has not expired
-              throw new errors.InvalidTokenError('expired');
-            }
 
-            return session;
-          });
+          // Check if the access token is an internal clients access token
+          if (token.indexOf(':') != -1) {
+            var parts = token.split(':');
+            return models.ApiClient.findOne({
+              client_id: parts[0],
+              client_secret: parts[1]
+            });
+          } else {
+            // Retrieve the access token from the req
+            return models.ApiSession.findOne({
+              token: token
+            }).catch(models.ApiSession.NotFoundError,function () {
+              // Couldn't find any session associated with this access token
+              throw new errors.InvalidTokenError('invalid');
+            }).then(function (result) {
+              session = result;
+              // Validate the access token
+              if (session.isExpired()) {
+                // Ensure access session has not expired
+                throw new errors.InvalidTokenError('expired');
+              }
+
+              return session;
+            });
+          }
+
         }).catch(function (error) {
           // There was an error when trying to retrieve access token,
           if (options.oauth2) {
