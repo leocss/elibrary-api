@@ -5,6 +5,7 @@
 module.exports = {
   Book: require('./book').Book,
   Books: require('./book').Books,
+  BookCategory: require('./book-category').BookCategory,
   PrintJob: require('./print-job').PrintJob,
   PrintJobDocument: require('./print-job-document').PrintJobDocument,
   User: require('./user').User,

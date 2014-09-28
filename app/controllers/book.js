@@ -16,11 +16,11 @@ module.exports = {
    * @param req
    * @param res
    */
-  getBooks: function (context, req, res) {
-    var model = new models.Book({}).query(function (query) {
-      if (!_.isUndefined(req.query.filter)) {
+  getBooks: function(context, req, res) {
+    var model = new models.Book({}).query(function(query) {
+      if (req.query.stat) {
         // ?filter=5_latest or ?filter=5_most_borrowed
-        var parts = req.query.filter.split('_').reverse(),
+        var parts = req.query.stat.split('_').reverse(),
           limit = parseInt(parts.pop()),
           type = parts.reverse().join('_');
 
@@ -34,10 +34,22 @@ module.exports = {
         }
 
         query.limit(limit);
+      } else if (req.query.filter) {
+        query.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+      }
+
+      if (req.query.category) {
+        query.where('category_id', '=', parseInt(req.query.category));
       }
     });
 
-    return model.fetchAll({withRelated: ['category']});
+    return model.fetchAll({
+      withRelated: ['category']
+    });
+  },
+
+  getCategories: function(context, req, res) {
+    return models.BookCategory.all({require: false});
   },
 
   /**
@@ -50,7 +62,7 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  getRandomBook: function (context, req, res) {
+  getRandomBook: function(context, req, res) {
     return new models.Book({}).query(function(query) {
       query.orderByRaw('rand()');
       query.limit(1);
@@ -66,7 +78,7 @@ module.exports = {
    * @param req
    * @param res
    */
-  getBook: function (context, req, res) {
+  getBook: function(context, req, res) {
     return models.Book.findById(req.params.id, {
       withRelated: ['category']
     })
@@ -91,7 +103,7 @@ module.exports = {
    * @param req
    * @param res
    */
-  addBook: function (context, req, res) {
+  addBook: function(context, req, res) {
     return models.Book.create(_.pick(req.body, [
       'title', 'author', 'edition', 'overview',
       'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
@@ -110,7 +122,7 @@ module.exports = {
    * @param req
    * @param res
    */
-  updateBook: function (context, req, res) {
+  updateBook: function(context, req, res) {
     return models.Book.update(req.params.id, _.pick(req.body, [
       'title', 'author', 'edition', 'overview', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
     ]));
@@ -126,21 +138,25 @@ module.exports = {
    * @param req
    * @param res
    */
-  deleteBook: function (context, req, res) {
-    return models.Book.destroy({id: req.params.id}).then(function () {
-      return {id: req.params.id};
+  deleteBook: function(context, req, res) {
+    return models.Book.destroy({
+      id: req.params.id
+    }).then(function() {
+      return {
+        id: req.params.id
+      };
     });
   },
 
-  issueBook: function (context, req, res) {
+  issueBook: function(context, req, res) {
 
   },
 
-  retrieveBook: function (context, req, res) {
+  retrieveBook: function(context, req, res) {
 
   },
 
-  checkinBook: function (context, req, res) {
+  checkinBook: function(context, req, res) {
 
   },
 
@@ -148,7 +164,7 @@ module.exports = {
 
   },
 
-  uploadPreviewImage: function (context, req, res) {
+  uploadPreviewImage: function(context, req, res) {
     return {
       // TODO implement
     };
