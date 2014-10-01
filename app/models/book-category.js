@@ -12,7 +12,11 @@ var BookCategoryModel = base.Model.extend({
     'id',
     'title',
     'created_at'
-  ]
+  ],
+
+  books: function() {
+    return this.hasMany(require('./book').Books, 'category_id');
+  }
 });
 
 var BookCategoryCollection = base.Collection.extend({

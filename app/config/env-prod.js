@@ -15,7 +15,7 @@ module.exports = {
   database: {
     main: {
       client: 'mysql',
-      debug: false,
+      debug: true,
       connection: {
         host: '127.0.0.1',
         user: 'morrelinko',
