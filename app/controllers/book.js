@@ -3,15 +3,17 @@
  */
 var _ = require('lodash'),
   Promise = require('bluebird'),
-  utils = require('../utils'),
+  fse = Promise.promisifyAll(require('fs-extra')),
+  errors = require('../errors'),
   models = require('../models');
+
+var BOOK_IMG_DIR = __dirname + '/../../public/files/books/images';
 
 module.exports = {
   /**
    * Endpoint to get a list of books in the library.
    * Usage:
    *  GET /books
-   * TODO GET /books?only=23,44,56 to get only books with id 23,44 and 56
    *
    * @param {Context} context
    * @param req
@@ -20,7 +22,7 @@ module.exports = {
   getBooks: function (context, req, res) {
     var model = new models.Book({}).query(function (query) {
       if (req.query.stat) {
-        // ?filter=5_latest or ?filter=5_most_borrowed
+        // ?stat=5_latest or ?stat=5_most_borrowed
         var parts = req.query.stat.split('_').reverse(),
           limit = parseInt(parts.pop()),
           type = parts.reverse().join('_');
@@ -32,11 +34,22 @@ module.exports = {
           case 'latest':
             query.orderBy('id', 'desc');
             break;
+          case 'most_viewed':
+            query.orderBy('view_count', 'desc');
+            break;
         }
 
         query.limit(limit);
       } else if (req.query.filter) {
         query.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+      }
+
+      if (req.query.limit && !req.query.stat) {
+        query.limit(req.query.limit);
+      }
+
+      if (req.query.offset && !req.query.stat) {
+        query.skip(req.query.offset);
       }
 
       if (req.query.category) {
@@ -49,6 +62,14 @@ module.exports = {
     });
   },
 
+  /**
+   * Gets book categories
+   *
+   * @param context
+   * @param {Object} req
+   * @param {Object} res
+   * @returns {*}
+   */
   getCategories: function (context, req, res) {
     var promises = [];
     return models.BookCategory.all({
@@ -122,6 +143,24 @@ module.exports = {
       'title', 'author', 'edition', 'overview',
       'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
     ]));
+  },
+
+  uploadBookPreview: function (context, req, res) {
+    if (_.isUndefined(req.files.image)) {
+      throw new errors.MissingParamError(['image']);
+    }
+
+    var savename = req.params.id + req.files.image.name;
+    return fse.moveAsync(req.files.image.path, BOOK_IMG_DIR + '/' + savename).then(function () {
+      // Delete temp file after moving to main location
+      return fse.removeAsync(req.files.image.path);
+    }).then(function () {
+      return models.Book.update(req.params.id, {
+        preview_image: savename
+      });
+    }).catch(function (error) {
+      throw new errors.ApiError(error.message || error);
+    });
   },
 
   /**

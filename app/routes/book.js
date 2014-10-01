@@ -12,6 +12,6 @@ module.exports = function(app) {
   app.get('/books/categories/:category_id', app.apiHandler(book.getCategoryBooks));
   app.post('/books', app.apiHandler(book.addBook));
   app.post('/books/:id', app.apiHandler(book.updateBook));
-  app.post('/books/:id/preview-image', app.apiHandler(book.uploadPreviewImage));
+  app.post('/books/:id/preview-image', app.apiHandler(book.uploadBookPreview));
   app.delete('/books/:id', app.apiHandler(book.deleteBook));
 };

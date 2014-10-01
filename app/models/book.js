@@ -9,9 +9,7 @@ var BookModel = base.Model.extend({
   tableName: 'books',
   hasTimestamps: true,
 
-  virtuals: {
-
-  },
+  virtuals: {},
 
   permitted: [
     'id',
@@ -24,10 +22,20 @@ var BookModel = base.Model.extend({
     'has_hard_copy',
     'has_soft_copy',
     'copies',
+    'borrow_count',
+    'view_count',
     'published_at', // Holds the time the book was published (Month & Year)
     'created_at', // This holds the time the book was added to the library,
     'updated_at'
   ],
+
+  virtuals: {
+    preview_image_url: function () {
+      if (this.get('preview_image') != null) {
+        return '/files/books/images/' + this.get('preview_image');
+      }
+    }
+  },
 
   saving: function (model, attributes, options) {
     if (this.hasChanged('published_at') && this.get('published_at').split('-').length == 2) {
