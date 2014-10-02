@@ -14,7 +14,15 @@ var UserFavouriteModel = base.Model.extend({
     'type',
     'item_id',
     'created_at'
-  ]
+  ],
+
+  book: function () {
+    return this.belongsTo(require('./book').Book, 'item_id');
+  },
+
+  article: function () {
+    return this.belongsTo(require('./article').Article, 'item_id');
+  }
 });
 
 var UserFavouriteCollection = base.Collection.extend({

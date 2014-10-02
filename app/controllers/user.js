@@ -183,10 +183,10 @@ module.exports = {
    * @param request
    * @param response
    */
-  deletePrintJob: function (context, request, response) {
+  deletePrintJob: function (context, req, resp) {
     return models.PrintJob.destroy({
-      id: request.params.job_id,
-      user_id: request.params.user_id
+      id: req.params.job_id,
+      user_id: req.params.user_id
     });
   },
 
@@ -196,8 +196,33 @@ module.exports = {
    * @param request
    * @param response
    */
-  getFavouriteBooks: function (context, request, response) {
+  getFavourites: function (context, req, res) {
+    return models.UserFavourite.findMany({
+        where: {
+          user_id: req.params.user_id
+        }
+      }, {
+        require: false,
+        withRelated: ['book']
+      }
+    );
+  },
 
+  deleteFavourite: function (context, req, res) {
+    return models.UserFavourite.destroy({
+      user_id: req.params.user_id,
+      id: req.params.favourite_id
+    })
+  },
+
+  addFavourite: function (context, req, res) {
+    var required = ['item_id', 'type', 'user_id'];
+    required.forEach(function(item) {
+      if (!_.has(req.body, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+    });
+
+    return models.UserFavourite.create(_.pick(req.body, ['item_id', 'type', 'user_id']));
   }
-}
-;
+};

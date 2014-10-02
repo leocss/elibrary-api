@@ -9,6 +9,7 @@ module.exports = {
   PrintJob: require('./print-job').PrintJob,
   PrintJobDocument: require('./print-job-document').PrintJobDocument,
   User: require('./user').User,
+  UserFavourite: require('./user-favourite').UserFavourite,
   ApiClient: require('./api-client').ApiClient,
   ApiSession: require('./api-session').ApiSession,
 
