@@ -11,13 +11,14 @@ var UserModel = base.Model.extend({
 
   permitted: [
     'id',
+    'rfid',
+    'unique_id',
     'first_name',
     'last_name',
+    'password',
     'address',
     'gender',
-    'matric_number',
-    'school',
-    'course',
+    'type',
     'created_at',
     'updated_at'
   ],

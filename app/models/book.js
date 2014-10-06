@@ -44,7 +44,7 @@ var BookModel = base.Model.extend({
   },
 
   category: function () {
-    return this.belongsTo(require('./book-category').BookCategory, 'category_id');
+    return this.belongsTo(require('./category').Category, 'category_id').where('object', '=', 'book');
   }
 });
 

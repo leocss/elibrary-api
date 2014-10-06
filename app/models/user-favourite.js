@@ -11,17 +11,17 @@ var UserFavouriteModel = base.Model.extend({
   permitted: [
     'id',
     'user_id',
-    'type',
-    'item_id',
+    'object',
+    'object_id',
     'created_at'
   ],
 
   book: function () {
-    return this.belongsTo(require('./book').Book, 'item_id');
+    return this.belongsTo(require('./book').Book, 'object_id');
   },
 
-  article: function () {
-    return this.belongsTo(require('./article').Article, 'item_id');
+  post: function () {
+    return this.belongsTo(require('./post').Article, 'object_id');
   }
 });
 

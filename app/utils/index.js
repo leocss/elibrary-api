@@ -32,5 +32,21 @@ module.exports = {
     });
 
     return _.pick(object, properties);
-  }
+  },
+
+  safeString: function (string) {
+      string = string.trim();
+      // TODO: use unidecode to remove non-ascii characters
+
+      // Remove URL reserved chars: `:/?#[]@!$&'()*+,;=` as well as `\%<>|^~£"`
+      string = string.replace(/[:\/\?#\[\]@!$&'()*+,;=\\%<>\|\^~£"]/g, '')
+          // Replace dots and spaces with a dash
+          .replace(/(\s|\.)/g, '-')
+          // Convert 2 or more dashes into a single dash
+          .replace(/-+/g, '-')
+          // Make the whole thing lowercase
+          .toLowerCase();
+
+      return string;
+    }
 };

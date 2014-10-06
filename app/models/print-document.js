@@ -4,8 +4,8 @@
 
 var base = require('./base');
 
-var PrintJobDocumentModel = base.Model.extend({
-  tableName: 'print_jobs_documents',
+var PrintDocumentModel = base.Model.extend({
+  tableName: 'print_documents',
   hasTimestamps: true,
 
   permitted: [
@@ -13,6 +13,7 @@ var PrintJobDocumentModel = base.Model.extend({
     'job_id',
     'file_name',
     'file_path',
+    'file_type',
     'file_size'
   ],
 
@@ -23,11 +24,11 @@ var PrintJobDocumentModel = base.Model.extend({
   }
 });
 
-var PrintJobDocumentCollection = base.Collection.extend({
-  model: PrintJobDocumentModel
+var PrintDocumentCollection = base.Collection.extend({
+  model: PrintDocumentModel
 });
 
 module.exports = {
-  PrintJobDocument: PrintJobDocumentModel,
-  PrintJobDocuments: PrintJobDocumentCollection
+  PrintDocument: PrintDocumentModel,
+  PrintDocuments: PrintDocumentCollection
 };

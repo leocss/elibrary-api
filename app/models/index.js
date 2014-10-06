@@ -4,10 +4,13 @@
 
 module.exports = {
   Book: require('./book').Book,
-  Books: require('./book').Books,
-  BookCategory: require('./book-category').BookCategory,
+  Post: require('./post').Post,
+  Category: require('./category').Category,
+  Like: require('./like').Like,
+  View: require('./view').View,
+  Comment: require('./comment').Comment,
   PrintJob: require('./print-job').PrintJob,
-  PrintJobDocument: require('./print-job-document').PrintJobDocument,
+  PrintDocument: require('./print-document').PrintDocument,
   User: require('./user').User,
   UserFavourite: require('./user-favourite').UserFavourite,
   ApiClient: require('./api-client').ApiClient,

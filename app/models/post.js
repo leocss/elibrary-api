@@ -12,13 +12,31 @@ var PostModel = base.Model.extend({
     'id',
     'title',
     'slug',
+    'category_id',
     'author_id',
-    'content_text',
-    'content_parsed',
+    'content',
+    'content_html',
+    'image',
+    'format',
+    'is_featured',
+    'likes_count',
+    'views_count',
     'updated_by',
     'created_at',
     'updated_at'
-  ]
+  ],
+
+  category: function() {
+    return this.belongsTo(require('./category').Category, 'category_id').query({where: {object: 'post'}});
+  },
+
+  author: function() {
+    return this.belongsTo(require('./user').User, 'author_id');
+  },
+
+  comments: function() {
+    return this.hasMany(require('./comment').Comments, 'object_id').query({where: {object: 'post'}});
+  }
 });
 
 var PostCollection = base.Collection.extend({

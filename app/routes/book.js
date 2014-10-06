@@ -4,6 +4,10 @@
 
 var book = require('../controllers/book');
 
+var doStuff = function() {
+
+};
+
 module.exports = function(app) {
   app.get('/books', app.apiHandler(book.getBooks));
   app.get('/books/random', app.apiHandler(book.getRandomBook));

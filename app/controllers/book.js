@@ -71,14 +71,14 @@ module.exports = {
    * @returns {*}
    */
   getCategories: function (context, req, res) {
-    var promises = [];
-    return models.BookCategory.all({
-      require: false
-    }).then(function (result) {
-      if (req.query['book.limit']) {
+    var promises = [],
+      includes = context.parseIncludes(['books']);
+
+    return models.Category.forBooks().then(function (result) {
+      if (includes.indexOf('books') != -1) {
         result.forEach(function (category) {
           promises.push(category.related('books').query(function (qb) {
-            qb.limit(parseInt(req.query['book.limit']));
+            qb.limit(parseInt(req.query.books_limit || 5));
           }).fetch());
         });
       }
@@ -116,7 +116,7 @@ module.exports = {
   getBook: function (context, req, res) {
     return models.Book.findById(req.params.id, {
       withRelated: ['category']
-    })
+    });
   },
 
   /**
