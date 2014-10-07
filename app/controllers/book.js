@@ -125,7 +125,7 @@ module.exports = {
 
     return models.Book.findOne({id: req.params.book_id}, {
       withRelated: includes
-    }, function(qb) {
+    }, function (qb) {
       qb.select(
         knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS likes_count'));
       qb.select(
@@ -159,6 +159,14 @@ module.exports = {
     ]));
   },
 
+  /**
+   * Upload a book preview image
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   uploadBookImage: function (context, req, res) {
     if (_.isUndefined(req.files.image)) {
       throw new errors.MissingParamError(['image']);
@@ -176,7 +184,15 @@ module.exports = {
     });
   },
 
-  uploadBookFile: function(context, req, res) {
+  /**
+   * Upload a digital book file (pdf)
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  uploadBookFile: function (context, req, res) {
     if (_.isUndefined(req.files.book) || _.isNull(req.files.book)) {
       throw new errors.MissingParamError(['book']);
     }
@@ -233,11 +249,99 @@ module.exports = {
     });
   },
 
-  issueBook: function (context, req, res) {
+  getBookLikes: function (context, req, res) {
+    return models.Like.findMany({
+      where: {
+        object: 'book',
+        object_id: req.params.id
+      }
+    }, {require: false});
+  },
+
+  addBookUserLike: function (context, req, res) {
+    if (context.user === null) {
+      // Ensure client access token cannot access this endpoint
+      throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
+    }
+
+    var data = {};
+    data.user_id = context.user.get('id');
+    data.object = 'book';
+    data.object_id = parseInt(req.params.book_id);
+
+    // Try to retrieve the liked data, the orm 
+    // throws an error if it doesn't find a result.
+    // Only then, will we create the like;
+    return models.Like.findOne({
+      user_id: data.user_id,
+      object_id: data.object_id
+    }).catch(models.Like.NotFoundError, function (err) {
+      return models.Like.create(data);
+    });
+  },
+
+  /**
+   * Removes a book's user like.
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  removeBookUserLike: function (context, req, res) {
+    if (context.user === null) {
+      // Ensure client access token cannot access this endpoint
+      throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
+    }
+
+    return models.Like.destroy({
+      user_id: context.user.get('id'),
+      object_id: req.params.book_id,
+      object: 'book'
+    }).return({success: true});
+  },
+
+  /**
+   * Gets all users that viewed a particular book.
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  getBookViews: function (context, req, res) {
+    return models.View.findMany({
+      where: {
+        object: 'book',
+        object_id: req.params.book_id
+      }
+    }, {require: false});
+  },
+
+  addBookUserView: function (context, req, res) {
+    if (context.user === null) {
+      // Ensure client access token cannot access this endpoint
+      throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
+    }
+
+    var data = {};
+    data.user_id = context.user.get('id');
+    data.object = 'book';
+    data.object_id = parseInt(req.params.book_id);
+
+    return models.View.findOne({
+      user_id: data.user_id,
+      object_id: data.object_id
+    }).catch(models.View.NotFoundError, function (err) {
+      return models.View.create(data);
+    });
+  },
+
+  borrowBook: function (context, req, res) {
 
   },
 
-  retrieveBook: function (context, req, res) {
+  returnBook: function (context, req, res) {
 
   },
 
@@ -247,11 +351,5 @@ module.exports = {
 
   checkoutBook: function (context, req, res) {
 
-  },
-
-  uploadPreviewImage: function (context, req, res) {
-    return {
-      // TODO implement
-    };
   }
 };

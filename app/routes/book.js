@@ -4,7 +4,7 @@
 
 var book = require('../controllers/book');
 
-module.exports = function(app) {
+module.exports = function (app) {
   // Books
   app.get('/books', app.apiHandler(book.getBooks));
   app.post('/books', app.apiHandler(book.addBook));
@@ -20,4 +20,13 @@ module.exports = function(app) {
   app.post('/books/:book_id/image', app.apiHandler(book.uploadBookImage));
   app.post('/books/:book_id/book', app.apiHandler(book.uploadBookFile));
   app.delete('/books/:id', app.apiHandler(book.deleteBook));
+
+  // Book Likes
+  app.get('/books/:book_id/likes', app.apiHandler(book.getBookLikes));
+  app.post('/books/:book_id/like', app.apiHandler(book.addBookUserLike));
+  app.delete('/books/:book_id/like', app.apiHandler(book.removeBookUserLike));
+
+  // Book Views
+  app.get('/books/:book_id/views', app.apiHandler(book.getBookViews));
+  app.post('/books/:book_id/view', app.apiHandler(book.addBookUserView));
 };
