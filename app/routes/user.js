@@ -24,4 +24,7 @@ module.exports = function (app) {
   app.get('/users/:user_id/print-jobs/:job_id', app.apiHandler(user.getPrintJob));
   app.post('/users/:user_id/print-jobs', app.apiHandler(user.createPrintJob));
   app.delete('/users/:user_id/print-jobs/:jobId', app.apiHandler(user.deletePrintJob));
+
+  // Likes
+  app.get('/users/:user_id/likes', app.apiHandler(user.getLikes));
 };

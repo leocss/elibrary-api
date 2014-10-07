@@ -216,6 +216,14 @@ module.exports = {
     );
   },
 
+  /**
+   * Removes an item from the user favourites.
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   deleteFavourite: function (context, req, res) {
     return models.UserFavourite.destroy({
       user_id: req.params.user_id,
@@ -223,6 +231,13 @@ module.exports = {
     })
   },
 
+  /**
+   * Adds an item to the user favourites.
+   *
+   * @param context
+   * @param req
+   * @param res
+   */
   addFavourite: function (context, req, res) {
     var required = ['item_id', 'type', 'user_id'];
     required.forEach(function(item) {
@@ -232,5 +247,20 @@ module.exports = {
     });
 
     return models.UserFavourite.create(_.pick(req.body, ['item_id', 'type', 'user_id']));
+  },
+
+  /**
+   * Gets all the items the user liked
+   *
+   * @param context
+   * @param req
+   * @param res
+   */
+  getLikes: function (context, req, res) {
+    return models.Like.findMany({
+      where: {
+        user_id: req.params.user_id
+      }
+    }, {require: false});
   }
 };
