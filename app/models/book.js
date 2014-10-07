@@ -3,7 +3,8 @@
  */
 
 var moment = require('moment'),
-  base = require('./base');
+  base = require('./base'),
+  config = require('../config');
 
 var BookModel = base.Model.extend({
   tableName: 'books',
@@ -32,7 +33,13 @@ var BookModel = base.Model.extend({
   virtuals: {
     preview_image_url: function () {
       if (this.get('preview_image') != null) {
-        return '/files/books/images/' + this.get('preview_image');
+        return config.server.url() + '/files/books/images/' + this.get('preview_image');
+      }
+    },
+
+    book_file_url: function() {
+      if (this.get('file_name')) {
+        return config.server.url() + '/files/books/files/' + this.get('file_name');
       }
     }
   },

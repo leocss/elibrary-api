@@ -5,7 +5,11 @@
 module.exports = {
   server: {
     host: '127.0.0.1',
-    port: 4000
+    port: 4000,
+    url: function(secure) {
+      secure = secure || false;
+      return ['http', (secure ? 's' : ''), '://', this.host, (this.port != 80 ? ':' + this.port : '')].join('');
+    }
   },
 
   application: {

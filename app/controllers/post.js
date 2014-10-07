@@ -3,6 +3,7 @@
  */
 
 var _ = require('lodash'),
+  knex = require('knex'),
   Promise  = require('bluebird'),
   utils = require('../utils'),
   errors = require('../errors'),
@@ -36,7 +37,7 @@ module.exports = {
 
     return model.fetchAll({
       withRelated: ['category']
-    })
+    });
   },
 
   /**
@@ -46,10 +47,17 @@ module.exports = {
    * @param res
    */
   getPost: function(context, req, res) {
-    var includes = context.parseIncludes(['author', 'comments', 'comments.user']);
+    var includes = context.parseIncludes(['author', 'likes', 'comments', 'comments.user']);
 
-    return models.Post.findById(req.params.id, {
+    return models.Post.findOne({
+      id: req.params.id
+    }, {
       withRelated: includes
+    }, function(qb) {
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "post" AND object_id = "' + req.params.id + '") AS likes_count'));
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "post" AND object_id = "' + req.params.id + '") AS views_count'));
     });
   },
 
@@ -158,6 +166,81 @@ module.exports = {
    */
   deletePost: function(context, request, response) {
     return models.Post.destroy({id: request.params.id});
+  },
+
+  getPostLikes: function(context, req, res) {
+    return models.Like.findMany({
+      where: {
+        object: 'post',
+        object_id: req.params.id
+      }
+    }, {require: false});
+  },
+
+  addUserPostLike: function(context, req, res) {
+    if (context.user === null) {
+      // Ensure client access token cannot access this endpoint
+      throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
+    }
+
+    var data = {};
+    data.user_id = context.user.get('id');
+    data.object = 'post';
+    data.object_id = req.params.id;
+
+    // Try to retrieve the liked data, the orm 
+    // throws an error if it doesn't find a result.
+    // Only then, will we create the like;
+    return models.Like.findOne({
+      user_id: data.user_id,
+      object_id: data.object_id
+    }).catch(models.Like.NotFoundError, function(err) {
+      return models.Like.create(data);
+    });
+  },
+
+  removeUserPostLike: function(context, req, res) {
+    if (context.user === null) {
+      // Ensure client access token cannot access this endpoint
+      throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
+    }
+
+    return models.Like.destroy({
+      user_id: context.user.get('id'),
+      object_id: req.params.id,
+      object: 'post'
+    }).return({success: true});
+  },
+
+  getPostViews: function(context, req, res) {
+    return models.View.findMany({
+      where: {
+        object: 'post',
+        object_id: req.params.id
+      }
+    }, {require: false});
+  },
+
+  addPostUserView: function(context, req, res) {
+    if (context.user === null) {
+      // Ensure client access token cannot access this endpoint
+      throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
+    }
+
+    var data = {};
+    data.user_id = context.user.get('id');
+    data.object = 'post';
+    data.object_id = req.params.id;
+
+    // Try to retrieve the view data, the orm 
+    // throws an error if it doesn't find a result.
+    // Only then, will we create the like;
+    return models.View.findOne({
+      user_id: data.user_id,
+      object_id: data.object_id
+    }).catch(models.View.NotFoundError, function(err) {
+      return models.View.create(data);
+    });
   },
 
   /**

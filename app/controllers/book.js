@@ -3,11 +3,13 @@
  */
 var _ = require('lodash'),
   Promise = require('bluebird'),
+  knex = require('knex'),
   fse = Promise.promisifyAll(require('fs-extra')),
   errors = require('../errors'),
   models = require('../models');
 
 var BOOK_IMG_DIR = __dirname + '/../../public/files/books/images';
+var BOOK_FILE_DIR = __dirname + '/../../public/files/books/files'
 
 module.exports = {
   /**
@@ -36,6 +38,9 @@ module.exports = {
             break;
           case 'most_viewed':
             query.orderBy('view_count', 'desc');
+            break;
+          case 'most_liked':
+            // TODO: implement this
             break;
         }
 
@@ -98,10 +103,12 @@ module.exports = {
    * @returns {*}
    */
   getRandomBook: function (context, req, res) {
+    var includes = context.parseIncludes(['category']);
+
     return new models.Book({}).query(function (query) {
       query.orderByRaw('rand()');
       query.limit(1);
-    }).fetch();
+    }).fetch({withRelated: includes});
   },
 
   /**
@@ -114,8 +121,15 @@ module.exports = {
    * @param res
    */
   getBook: function (context, req, res) {
-    return models.Book.findById(req.params.id, {
-      withRelated: ['category']
+    var includes = context.parseIncludes(['category']);
+
+    return models.Book.findOne({id: req.params.book_id}, {
+      withRelated: includes
+    }, function(qb) {
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS likes_count'));
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS views_count'));
     });
   },
 
@@ -145,22 +159,40 @@ module.exports = {
     ]));
   },
 
-  uploadBookPreview: function (context, req, res) {
+  uploadBookImage: function (context, req, res) {
     if (_.isUndefined(req.files.image)) {
       throw new errors.MissingParamError(['image']);
     }
 
-    var savename = req.params.id + req.files.image.name;
-    return fse.moveAsync(req.files.image.path, BOOK_IMG_DIR + '/' + savename).then(function () {
+    return fse.moveAsync(req.files.image.path, BOOK_IMG_DIR + '/' + req.files.image.name).then(function () {
       // Delete temp file after moving to main location
       return fse.removeAsync(req.files.image.path);
     }).then(function () {
-      return models.Book.update(req.params.id, {
-        preview_image: savename
+      return models.Book.update(req.params.book_id, {
+        preview_image: req.files.image.name
       });
     }).catch(function (error) {
       throw new errors.ApiError(error.message || error);
     });
+  },
+
+  uploadBookFile: function(context, req, res) {
+    if (_.isUndefined(req.files.book) || _.isNull(req.files.book)) {
+      throw new errors.MissingParamError(['book']);
+    }
+
+    return fse
+      .moveAsync(req.files.book.path, [BOOK_FILE_DIR, '/', req.files.book.name].join(''))
+      .then(function () {
+        // Delete temp file after moving to main location
+        return fse.removeAsync(req.files.book.path);
+      }).then(function () {
+        return models.Book.update(req.params.book_id, {
+          file_name: req.files.book.name
+        });
+      }).catch(function (error) {
+        throw new errors.ApiError(error.message || error);
+      });
   },
 
   /**

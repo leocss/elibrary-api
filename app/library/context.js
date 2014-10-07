@@ -7,6 +7,16 @@ var _ = require('lodash');
 var Context = function(req) {
   this.client = {};
   this.req = req;
+  this.user = null;
+  this.authType = null;
+};
+
+Context.prototype.setAuthType = function(type) {
+  this.authType = type;
+};
+
+Context.prototype.setUser = function(user) {
+  this.user = user;
 };
 
 Context.prototype.parseIncludes = function(allowedIncludes) {

@@ -46,7 +46,6 @@ var BaseModel = bookshelf.Model.extend({
     return this.save(attributes, _.merge({patch: true}, options));
   }
 }, {
-
   findOne: function(credentials, options, query) {
     query = query || {};
     options = _.extend({require: true}, options);

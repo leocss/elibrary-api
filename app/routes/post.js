@@ -19,6 +19,15 @@ module.exports = function(app) {
   app.post('/posts/:id/image', app.apiHandler(post.uploadFeaturedImage));
   app.delete('/posts/:id', app.apiHandler(post.deletePost));
 
+  // Likes
+  app.get('/posts/:id/likes', app.apiHandler(post.getPostLikes));
+  app.post('/posts/:id/like', app.apiHandler(post.addUserPostLike));
+  app.delete('/posts/:id/like', app.apiHandler(post.removeUserPostLike));
+
+  // Views
+  app.get('/posts/:id/views', app.apiHandler(post.getPostViews));
+  app.post('/posts/:id/view', app.apiHandler(post.addPostUserView));
+
   // Post Item Comments
   app.get('/posts/:id/comments', app.apiHandler(post.getComments));
   app.post('/posts/:id/comments', app.apiHandler(post.createComment));

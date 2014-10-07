@@ -42,7 +42,7 @@ module.exports = function (app) {
             // Retrieve the access token from the req
             return models.ApiSession.findOne({
               token: token
-            }).catch(models.ApiSession.NotFoundError,function () {
+            }, {withRelated: ['user']}).catch(models.ApiSession.NotFoundError,function () {
               // Couldn't find any session associated with this access token
               throw new errors.InvalidTokenError('invalid');
             }).then(function (result) {
@@ -66,7 +66,16 @@ module.exports = function (app) {
           }
 
           return true;
-        }).then(function () {
+        }).then(function (result) {
+          if (result instanceof models.ApiClient) {
+            // An api client access token was used.
+            context.setAuthType('client');
+          } else if (result instanceof models.ApiSession) {
+            // An access token session was created propably for a user.
+            context.setAuthType('user');
+            context.setUser(result.related('user'));
+          }
+          
           // Execute the controller method and get its returned data
           return controller.call(controller, context, req, res, next);
         }).then(function (result) {

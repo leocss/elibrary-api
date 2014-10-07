@@ -23,6 +23,10 @@ var UserModel = base.Model.extend({
     'updated_at'
   ],
 
+  hidden: [
+    'password'
+  ],
+
   /**
    * Validates a password
    * @param {String} password

@@ -36,6 +36,14 @@ var PostModel = base.Model.extend({
 
   comments: function() {
     return this.hasMany(require('./comment').Comments, 'object_id').query({where: {object: 'post'}});
+  },
+
+  likes: function() {
+    return this.hasMany(require('./like').Like, 'object_id').query({where: {object: 'post'}});
+  },
+
+  views: function() {
+    return this.hasMany(require('./view').View, 'object_id').query({where: {object: 'post'}});
   }
 });
 

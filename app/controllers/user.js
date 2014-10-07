@@ -78,8 +78,16 @@ module.exports = {
    * @param response
    */
   getPrintJobs: function (context, request, response) {
+    var documentIndex;
+    var includes = context.parseIncludes(['documents']);
+
+    includes.push('printJobs');
+    if ((documentIndex = includes.indexOf('documents')) !== -1) {
+      includes[documentIndex] = 'printJobs.documents';
+    }
+
     return models.User.findById(request.params.user_id, {
-      withRelated: ['printJobs', 'printJobs.documents']
+      withRelated: includes
     }).then(function (user) {
       return user.related('printJobs');
     });
@@ -132,7 +140,7 @@ module.exports = {
       // Delete temp file after moving to main location
       return fse.removeAsync(req.files.document.path);
     }).then(function () {
-      return models.PrintJobDocument.create({
+      return models.PrintDocument.create({
         user_id: req.params.user_id,
         job_id: req.params.job_id,
         file_name: req.body.name || req.files.document.originalname,
@@ -158,7 +166,7 @@ module.exports = {
   deletePrintJobDocument: function (context, req, res) {
     var document;
 
-    models.PrintJobDocument.findById(req.params.document_id).then(function (result) {
+    models.PrintDocument.findById(req.params.document_id).then(function (result) {
       document = result;
       return result.destroy();
     }).then(function () {
@@ -169,11 +177,11 @@ module.exports = {
   },
 
   getPrintJobDocument: function (context, req, res) {
-    return models.PrintJobDocument.findById(req.params.document_id);
+    return models.PrintDocument.findById(req.params.document_id);
   },
 
   getPrintJobDocuments: function (context, req, res) {
-    return models.PrintJobDocument.findMany({where: {job_id: req.params.job_id}});
+    return models.PrintDocument.findMany({where: {job_id: req.params.job_id}}, {require: false});
   },
 
   /**

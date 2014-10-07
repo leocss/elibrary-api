@@ -19,7 +19,7 @@ var PrintJobModel = base.Model.extend({
   },
 
   documents: function () {
-    return this.hasMany(require('./print-job-document').PrintJobDocument, 'job_id');
+    return this.hasMany(require('./print-document').PrintDocument, 'job_id');
   }
 });
 

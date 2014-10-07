@@ -30,6 +30,10 @@ var ApiSessionModel = base.Model.extend({
    */
   isExpired: function () {
     return moment().isAfter(this.expireTime());
+  },
+
+  user: function() {
+    return this.belongsTo(require('./user').User, 'user_id');
   }
 });
 
