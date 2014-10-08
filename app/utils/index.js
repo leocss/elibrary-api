@@ -24,6 +24,10 @@ module.exports = {
     return cls;
   },
 
+  rand: function(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  },
+
   take: function (object, properties) {
     Object(properties).forEach(function (property) {
       if (!object.hasOwnProperty(property)) {

@@ -10,3 +10,4 @@ public/files/books/files/
 !public/files/books/files/.gitkeep
 public/files/books/images/
 !public/files/books/images/.gitkeep
+app/config/env-dev.js
