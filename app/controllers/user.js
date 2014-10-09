@@ -13,6 +13,29 @@ var path = require('path'),
 var PRINT_JOB_DIR = __dirname + '/../../public/files/printjobs';
 
 module.exports = {
+  getUsers: function(context, req, res) {
+    return new models.User().query(function(qb) {
+
+      if (req.query.filter) {
+        if (req.query.filter != '*') {
+          query.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+        }
+
+        if (req.query.type && (['staff', 'student'].indexOf(req.query.type) != -1)) {
+          query.where('type', '=', req.query.type);
+        }
+      }
+
+      if (req.query.limit && !req.query.stat) {
+        query.limit(req.query.limit);
+      }
+
+      if (req.query.offset && !req.query.stat) {
+        query.skip(req.query.offset);
+      }
+    }).fetchAll();
+  },
+
   /**
    * Endpoint to get a specific library user
    * GET /users/314234213

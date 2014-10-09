@@ -5,6 +5,7 @@
 var user = require('../controllers/user');
 
 module.exports = function (app) {
+  app.get('/users', app.apiHandler(user.getUsers));
   app.post('/users', app.apiHandler(user.createUser));
   app.delete('/users/:id', app.apiHandler(user.deleteUser));
   app.get('/users/:id', app.apiHandler(user.getUser));
