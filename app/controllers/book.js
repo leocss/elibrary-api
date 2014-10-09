@@ -61,7 +61,10 @@ module.exports = {
         qb.where('category_id', '=', parseInt(req.query.category));
       }
 
-      
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = books.id) AS likes_count'));
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = books.id) AS views_count'));
     });
 
     return model.fetchAll({
