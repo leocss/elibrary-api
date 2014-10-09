@@ -88,7 +88,7 @@ module.exports = {
    * @param request
    */
   deleteUser: function (context, request) {
-    return models.User.delete({id: request.params.id});
+    return models.User.destroy({id: request.params.id});
   },
 
   /**
