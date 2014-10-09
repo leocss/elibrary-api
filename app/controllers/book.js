@@ -22,7 +22,7 @@ module.exports = {
    * @param res
    */
   getBooks: function (context, req, res) {
-    var model = new models.Book({}).query(function (query) {
+    var model = new models.Book({}).query(function (qb) {
       if (req.query.stat) {
         // ?stat=5_latest or ?stat=5_most_borrowed
         var parts = req.query.stat.split('_').reverse(),
@@ -31,39 +31,63 @@ module.exports = {
 
         switch (type) {
           case 'most_borrowed':
-            query.orderBy('borrow_count', 'desc');
+            qb.orderBy('borrow_count', 'desc');
             break;
           case 'latest':
-            query.orderBy('id', 'desc');
+            qb.orderBy('id', 'desc');
             break;
           case 'most_viewed':
-            query.orderBy('view_count', 'desc');
+            qb.orderBy('view_count', 'desc');
             break;
           case 'most_liked':
             // TODO: implement this
             break;
         }
 
-        query.limit(limit);
+        qb.limit(limit);
       } else if (req.query.filter) {
-        query.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+        qb.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
       }
 
       if (req.query.limit && !req.query.stat) {
-        query.limit(req.query.limit);
+        qb.limit(parseInt(req.query.limit));
       }
 
       if (req.query.offset && !req.query.stat) {
-        query.skip(req.query.offset);
+        qb.skip(req.query.offset);
       }
 
       if (req.query.category) {
-        query.where('category_id', '=', parseInt(req.query.category));
+        qb.where('category_id', '=', parseInt(req.query.category));
       }
+
+      
     });
 
     return model.fetchAll({
       withRelated: ['category']
+    });
+  },
+
+  /**
+   * Endpoint to get a a specific book in the library using its unique id.
+   * Usage:
+   *  GET /books/413243
+   *
+   * @param {Context} context
+   * @param req
+   * @param res
+   */
+  getBook: function (context, req, res) {
+    var includes = context.parseIncludes(['category']);
+
+    return models.Book.findOne({id: req.params.book_id}, {
+      withRelated: includes
+    }, function (qb) {
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS likes_count'));
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS views_count'));
     });
   },
 
@@ -109,28 +133,6 @@ module.exports = {
       query.orderByRaw('rand()');
       query.limit(1);
     }).fetch({withRelated: includes});
-  },
-
-  /**
-   * Endpoint to get a a specific book in the library using its unique id.
-   * Usage:
-   *  GET /books/413243
-   *
-   * @param {Context} context
-   * @param req
-   * @param res
-   */
-  getBook: function (context, req, res) {
-    var includes = context.parseIncludes(['category']);
-
-    return models.Book.findOne({id: req.params.book_id}, {
-      withRelated: includes
-    }, function (qb) {
-      qb.select(
-        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS likes_count'));
-      qb.select(
-        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS views_count'));
-    });
   },
 
   /**
