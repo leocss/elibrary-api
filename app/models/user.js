@@ -27,6 +27,12 @@ var UserModel = base.Model.extend({
     'password'
   ],
 
+  virtuals: {
+    full_name: function() {
+      return [this.get('first_name'), this.get('last_name')].join(' ');
+    }
+  },
+
   /**
    * Validates a password
    * @param {String} password
