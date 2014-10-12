@@ -66,11 +66,21 @@ module.exports = {
    * @param context
    * @param request
    */
-  createUser: function (context, request) {
-    return models.User.create(_.pick(request.body, [
-      'first_name', 'last_name', 'email', 'address',
-      'gender', 'matric_number', 'school', 'course'
-    ]));
+  createUser: function (context, req) {
+    var required = ['first_name', 'last_name', 'password', 'email', 'address', 'gender', 'unique_id', 'rfid', 'type'];
+    var data = _.pick(req.body, required);
+
+    required.forEach(function(item) {
+      if (!_.has(data, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+
+      if (_.isEmpty(data[item])) {
+        throw new errors.ApiError('"' + item + '" cannot be empty.');
+      }
+    });
+
+    return models.User.create(data);
   },
 
   /**

@@ -3,6 +3,7 @@
  */
 
 var bcrypt = require('bcryptjs'),
+  utils = require('../utils'),
   base = require('./base');
 
 var UserModel = base.Model.extend({
@@ -28,9 +29,13 @@ var UserModel = base.Model.extend({
   ],
 
   virtuals: {
-    full_name: function() {
+    full_name: function () {
       return [this.get('first_name'), this.get('last_name')].join(' ');
     }
+  },
+
+  creating: function (model, attribute, options) {
+    model.set('password', bcrypt.hashSync(model.get('password'), 8));
   },
 
   /**
@@ -38,19 +43,19 @@ var UserModel = base.Model.extend({
    * @param {String} password
    * @returns {*}
    */
-  checkPassword: function(password) {
+  checkPassword: function (password) {
     return bcrypt.compareSync(password, this.get('password'));
   },
 
-  printJobs: function() {
+  printJobs: function () {
     return this.hasMany(require('./print-job').PrintJobs, 'user_id');
   },
 
-  favourites: function() {
+  favourites: function () {
     return this.hasMany(require('./user-favourite').Favourites, 'user_id');
   }
 }, {
-  checkPassword: function(password) {
+  checkPassword: function (password) {
 
   }
 });
