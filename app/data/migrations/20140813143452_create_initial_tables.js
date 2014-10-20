@@ -17,6 +17,8 @@ exports.up = function (knex, Promise) {
       table.string('email');
       table.string('password');
       table.string('address');
+      table.string('user_fund');
+      table.string('amount_owned');
       table.enum('gender', ['M', 'F']);
       table.string('type'); // type of user.. this can be 'staff' or 'student' (more can be specified)
       table.timestamps();
@@ -159,6 +161,13 @@ exports.up = function (knex, Promise) {
       table.integer('object_id').unsigned();
       table.dateTime('created_at');
     })
+    .createTable('billing', function(table){
+      table.integer('id').unsigned();
+      table.text('decription');
+      table.integer('amount');
+      table.enum('transaction_type', ['1', '2']);
+      table.dateTime('created_at');
+    })
     /**
      * Create 'views' table
      */
@@ -175,6 +184,7 @@ exports.down = function (knex, Promise) {
   return knex.raw('SET FOREIGN_KEY_CHECKS=0;')
     .then(function () {
       return knex.schema
+        .dropTable('billing')
         .dropTable('views')
         .dropTable('likes')
         .dropTable('comments')
