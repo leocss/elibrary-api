@@ -23,11 +23,11 @@ module.exports = {
       }
 
       if (req.query.limit && !req.query.stat) {
-        query.limit(req.query.limit);
+        query.limit(parseInt(req.query.limit));
       }
 
       if (req.query.offset && !req.query.stat) {
-        query.skip(req.query.offset);
+        query.skip(parseInt(req.query.offset));
       }
 
       if (req.query.category) {

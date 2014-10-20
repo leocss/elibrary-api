@@ -37,10 +37,10 @@ module.exports = {
             qb.orderBy('id', 'desc');
             break;
           case 'most_viewed':
-            qb.orderBy('view_count', 'desc');
+            qb.orderBy('views_count', 'desc');
             break;
           case 'most_liked':
-            // TODO: implement this
+            qb.orderBy('likes_count', 'desc');
             break;
         }
 
@@ -132,9 +132,13 @@ module.exports = {
   getRandomBook: function (context, req, res) {
     var includes = context.parseIncludes(['category']);
 
-    return new models.Book({}).query(function (query) {
-      query.orderByRaw('rand()');
-      query.limit(1);
+    return new models.Book({}).query(function (qb) {
+      qb.orderByRaw('rand()');
+      qb.limit(1);
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = books.id) AS likes_count'));
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = books.id) AS views_count'));
     }).fetch({withRelated: includes});
   },
 
