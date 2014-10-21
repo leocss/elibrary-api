@@ -20,6 +20,8 @@ var UserModel = base.Model.extend({
     'address',
     'gender',
     'type',
+    'fund',
+    'dept',
     'created_at',
     'updated_at'
   ],

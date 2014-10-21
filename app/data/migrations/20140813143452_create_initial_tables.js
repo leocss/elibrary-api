@@ -17,8 +17,8 @@ exports.up = function (knex, Promise) {
       table.string('email');
       table.string('password');
       table.string('address');
-      table.string('user_fund');
-      table.string('amount_owned');
+      table.string('fund');
+      table.string('dept');
       table.enum('gender', ['M', 'F']);
       table.string('type'); // type of user.. this can be 'staff' or 'student' (more can be specified)
       table.timestamps();
@@ -112,10 +112,10 @@ exports.up = function (knex, Promise) {
       table.dateTime('return_due_at');
       table.dateTime('returned_at');
     })
-    /**
-     * Create 'posts' table
-     */
-    .createTable('posts', function(table) {
+  /**
+   * Create 'posts' table
+   */
+    .createTable('posts', function (table) {
       table.increments('id');
       table.integer('category_id').unsigned().index();
       table.string('title', 150);
@@ -129,20 +129,20 @@ exports.up = function (knex, Promise) {
       table.integer('updated_by').defaultTo(0);
       table.timestamps();
     })
-    /**
-     * Create 'categories' table.
-     */
-    .createTable('categories', function(table) {
+  /**
+   * Create 'categories' table.
+   */
+    .createTable('categories', function (table) {
       table.increments('id');
       table.string('object', 30);
       table.string('title');
       table.string('description');
       table.timestamps();
     })
-    /**
-     * Create 'comments' table
-     */
-    .createTable('comments', function(table) {
+  /**
+   * Create 'comments' table
+   */
+    .createTable('comments', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned();
       table.string('object', 30);
@@ -151,27 +151,30 @@ exports.up = function (knex, Promise) {
       table.text('content');
       table.timestamps();
     })
-    /**
-     * Create 'likes' table
-     */
-    .createTable('likes', function(table) {
+  /**
+   * Create 'likes' table
+   */
+    .createTable('likes', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned();
       table.string('object', 30);
       table.integer('object_id').unsigned();
       table.dateTime('created_at');
     })
-    .createTable('billing', function(table){
+  /**
+   * Create 'transactions' table
+   */
+    .createTable('transactions', function (table) {
       table.integer('id').unsigned();
       table.text('decription');
       table.integer('amount');
-      table.enum('transaction_type', ['1', '2']);
+      table.enum('type', ['fund', 'cashout']);
       table.dateTime('created_at');
     })
-    /**
-     * Create 'views' table
-     */
-    .createTable('views', function(table) {
+  /**
+   * Create 'views' table
+   */
+    .createTable('views', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned();
       table.string('object', 30);
@@ -184,7 +187,7 @@ exports.down = function (knex, Promise) {
   return knex.raw('SET FOREIGN_KEY_CHECKS=0;')
     .then(function () {
       return knex.schema
-        .dropTable('billing')
+        .dropTable('transactions')
         .dropTable('views')
         .dropTable('likes')
         .dropTable('comments')
@@ -195,7 +198,7 @@ exports.down = function (knex, Promise) {
         .dropTable('api_clients')
         .dropTable('books_issues')
         .dropTable('books')
-        .dropTable('print_jobs_documents')
+        .dropTable('print_documents')
         .dropTable('print_jobs')
         .dropTable('users_favourites')
         .dropTable('users');

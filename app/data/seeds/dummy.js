@@ -14,6 +14,7 @@ var knex = require('knex'),
   Promise = require('bluebird'),
   moment = require('moment'),
   hat = require('hat'),
+  utils = require('../../utils'),
   knexfile = require('../../../knexfile');
 
 knex = knex(knexfile.development);
@@ -118,6 +119,8 @@ return Promise.resolve().then(function () {
         address: casual.address,
         gender: i == 0 ? 'M' : casual.random_element(['M', 'F']),
         type: type,
+        fund: utils.rand(0, 900),
+        debt: utils.rand(0, 5000),
         created_at: new Date(),
         updated_at: new Date()
       }));
