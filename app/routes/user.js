@@ -28,4 +28,9 @@ module.exports = function (app) {
 
   // Likes
   app.get('/users/:user_id/likes', app.apiHandler(user.getLikes));
+
+  // Billing
+  app.post('/users/:user_id/fund', app.apiHandler(user.fundAccount));
+  app.post('/users/:user_id/debt', app.apiHandler(user.incureDept));
+  app.delete('/users/:user_id/debt', app.apiHandler(user.resolveDept));
 };

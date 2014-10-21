@@ -13,8 +13,8 @@ var path = require('path'),
 var PRINT_JOB_DIR = __dirname + '/../../public/files/printjobs';
 
 module.exports = {
-  getUsers: function(context, req, res) {
-    return new models.User().query(function(qb) {
+  getUsers: function (context, req, res) {
+    return new models.User().query(function (qb) {
 
       if (req.query.filter) {
         if (req.query.filter != '*') {
@@ -70,7 +70,7 @@ module.exports = {
     var required = ['first_name', 'last_name', 'password', 'email', 'address', 'gender', 'unique_id', 'rfid', 'type'];
     var data = _.pick(req.body, required);
 
-    required.forEach(function(item) {
+    required.forEach(function (item) {
       if (!_.has(data, item)) {
         throw new errors.MissingParamError([item]);
       }
@@ -273,7 +273,7 @@ module.exports = {
    */
   addFavourite: function (context, req, res) {
     var required = ['item_id', 'type', 'user_id'];
-    required.forEach(function(item) {
+    required.forEach(function (item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
@@ -295,5 +295,84 @@ module.exports = {
         user_id: req.params.user_id
       }
     }, {require: false});
+  }
+
+  /**
+   * Gets all user billing transactions
+   *
+   * @param context
+   * @param req
+   */
+  getTransactions: function (context, req) {
+    return models.Transaction.findMany({
+      where: {
+        user_id: req.params.user_id
+      }
+    });
+  },
+
+  /**
+   * Endpoint to fund a user account
+   *
+   * @param context
+   * @param req
+   */
+  fundAccount: function (context, req) {
+    if (req.body.amount == undefined) {
+      throw new errors.MissingParamError(['amount']);
+    }
+
+    models.User.findById(req.params.user_id).then(function (user) {
+      return user.update({
+        fund: parseInt(user.get('fund')) + parseInt(req.body.amount)
+      });
+    });
+  },
+
+  /**
+   * Adds some amount to user debt
+   *
+   * @param context
+   * @param req
+   */
+  incureDept: function (context, req) {
+    if (req.body.type == undefined) {
+      throw new errors.MissingParamError(['type']);
+    }
+
+    var charges = 0;
+    switch (req.body.type) {
+      case 'sms':
+        charges = 5; // ie 5.0 NGN
+        break;
+    }
+
+    models.User.findById(req.params.user_id).then(function (user) {
+      return user.update({
+        debt: parseInt(user.get('debt')) + charges
+      });
+    });
+  },
+
+  /**
+   * Endpoint to remove from user dept...
+   * Note: only use this endpoint if the debt is to be
+   * resolved using the users account funds...
+   *
+   * @param context
+   * @param req
+   */
+  resolveDept: function (context, req) {
+    if (req.body.amount == undefined) {
+      throw new errors.MissingParamError(['amount']);
+    }
+
+    var amount = parseInt(req.body.amount);
+    models.User.findById(req.params.user_id).then(function (user) {
+      return user.update({
+        debt: (parseInt(user.get('debt')) - amount),
+        fund: (parseInt(user.get('fund')) - amount)
+      });
+    })
   }
 };

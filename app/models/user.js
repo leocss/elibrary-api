@@ -21,7 +21,7 @@ var UserModel = base.Model.extend({
     'gender',
     'type',
     'fund',
-    'dept',
+    'debt',
     'created_at',
     'updated_at'
   ],
@@ -55,6 +55,10 @@ var UserModel = base.Model.extend({
 
   favourites: function () {
     return this.hasMany(require('./user-favourite').Favourites, 'user_id');
+  },
+
+  transactions: function () {
+    return this.hasMany(require('./transactions').Transactions, 'user_id');
   }
 }, {
   checkPassword: function (password) {

@@ -18,7 +18,7 @@ exports.up = function (knex, Promise) {
       table.string('password');
       table.string('address');
       table.string('fund');
-      table.string('dept');
+      table.string('debt');
       table.enum('gender', ['M', 'F']);
       table.string('type'); // type of user.. this can be 'staff' or 'student' (more can be specified)
       table.timestamps();
@@ -165,8 +165,9 @@ exports.up = function (knex, Promise) {
    * Create 'transactions' table
    */
     .createTable('transactions', function (table) {
-      table.integer('id').unsigned();
-      table.text('decription');
+      table.integer('id').unsigned().unique();
+      table.integer('user_id').unsigned();
+      table.text('description');
       table.integer('amount');
       table.enum('type', ['fund', 'cashout']);
       table.dateTime('created_at');
@@ -188,11 +189,11 @@ exports.down = function (knex, Promise) {
     .then(function () {
       return knex.schema
         .dropTable('transactions')
+        .dropTable('notifications')
         .dropTable('views')
         .dropTable('likes')
         .dropTable('comments')
         .dropTable('categories')
-        .dropTable('posts_categories')
         .dropTable('posts')
         .dropTable('api_sessions')
         .dropTable('api_clients')
