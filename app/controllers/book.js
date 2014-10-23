@@ -189,7 +189,7 @@ module.exports = {
 
     var gmi = gm(req.files.image.path);
     gmi.write = Promise.promisify(gmi.write);
-    gmi.resize(240, 320);
+    gmi.resize(480, 640);
 
     return gmi.write(req.files.image.path)
       .then(function () {

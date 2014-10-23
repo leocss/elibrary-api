@@ -99,7 +99,7 @@ module.exports = {
     // First resize uploaded image
     var gmi = gm(req.files.photo.path);
     gmi.write = Promise.promisify(gmi.write)
-    gmi.resize(240, 320);
+    gmi.resize(480, 640);
 
     return gmi.write(req.files.photo.path)
       .then(function () {
