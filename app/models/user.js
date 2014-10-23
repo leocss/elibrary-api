@@ -3,6 +3,7 @@
  */
 
 var bcrypt = require('bcryptjs'),
+  config = require('../config'),
   utils = require('../utils'),
   base = require('./base');
 
@@ -19,6 +20,7 @@ var UserModel = base.Model.extend({
     'password',
     'address',
     'gender',
+    'photo',
     'type',
     'fund',
     'debt',
@@ -33,6 +35,10 @@ var UserModel = base.Model.extend({
   virtuals: {
     full_name: function () {
       return [this.get('first_name'), this.get('last_name')].join(' ');
+    },
+
+    photo_url: function () {
+      return config.server.url() + '/files/user-photos/' + this.get('photo');
     }
   },
 

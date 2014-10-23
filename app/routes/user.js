@@ -9,7 +9,7 @@ module.exports = function (app) {
   app.post('/users', app.apiHandler(user.createUser));
   app.delete('/users/:id', app.apiHandler(user.deleteUser));
   app.get('/users/:id', app.apiHandler(user.getUser));
-  app.put('/users/:id/photo', app.apiHandler(user.uploadPhoto));
+  app.post('/users/:user_id/photo', app.apiHandler(user.uploadPhoto));
 
   // Favourites
   app.get('/users/:user_id/favourites', app.apiHandler(user.getFavourites));

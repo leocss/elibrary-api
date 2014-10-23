@@ -10,7 +10,8 @@ var path = require('path'),
   errors = require('../errors'),
   models = require('../models');
 
-var PRINT_JOB_DIR = __dirname + '/../../public/files/printjobs';
+var USER_PHOTO_DIR = __dirname + '/../../public/files/user-photos';
+var PRINT_JOB_DIR = __dirname + '/../../public/files/print-jobs';
 
 module.exports = {
   getUsers: function (context, req, res) {
@@ -84,12 +85,38 @@ module.exports = {
   },
 
   /**
+   * Uploads user photo
    *
    * @param context
    * @param request
    */
-  uploadPhoto: function (context, request) {
+  uploadPhoto: function (context, req) {
+    if (_.isUndefined(req.files.photo) || _.isNull(req.files.photo)) {
+      throw new errors.MissingParamError(['photo']);
+    }
 
+    return fse
+      .moveAsync(req.files.photo.path, [USER_PHOTO_DIR, req.files.photo.name].join('/'))
+      .then(function () {
+        // Delete temp file after moving to main location
+        return fse.removeAsync(req.files.photo.path);
+      }).then(function () {
+        return models.User.findById(req.params.user_id).tap(function (user) {
+          if (user.get('photo') != null) {
+            // Delete the old user photo file...
+            return fse.removeAsync([USER_PHOTO_DIR, user.get('photo')].join('/'));
+          }
+
+          return true;
+        });
+      }).then(function (user) {
+        // Update the user 'photo' field
+        return user.update({
+          photo: req.files.photo.name
+        });
+      }).catch(function (error) {
+        throw new errors.ApiError(error.message || error);
+      });
   },
 
   /**
@@ -97,8 +124,8 @@ module.exports = {
    * @param context
    * @param request
    */
-  deleteUser: function (context, request) {
-    return models.User.destroy({id: request.params.id});
+  deleteUser: function (context, req) {
+    return models.User.destroy({id: req.params.id});
   },
 
   /**

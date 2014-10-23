@@ -2,7 +2,8 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var base = require('./base');
+var base = require('./base'),
+  config = require('../config');
 
 var PrintDocumentModel = base.Model.extend({
   tableName: 'print_documents',
@@ -19,7 +20,7 @@ var PrintDocumentModel = base.Model.extend({
 
   virtuals: {
     url: function() {
-      return '/files/printjobs/' + this.get('file_path');
+      return config.server.url() + '/files/print-jobs/' + this.get('file_path');
     }
   }
 });
