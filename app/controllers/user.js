@@ -7,6 +7,7 @@ var path = require('path'),
   hat = require('hat'),
   Promise = require('bluebird'),
   fse = Promise.promisifyAll(require('fs-extra')),
+  gm = require('gm'),
   errors = require('../errors'),
   models = require('../models');
 
@@ -95,8 +96,16 @@ module.exports = {
       throw new errors.MissingParamError(['photo']);
     }
 
-    return fse
-      .moveAsync(req.files.photo.path, [USER_PHOTO_DIR, req.files.photo.name].join('/'))
+    // First resize uploaded image
+    var gmi = gm(req.files.photo.path);
+    gmi.write = Promise.promisify(gmi.write)
+    gmi.resize(240, 320);
+
+    return gmi.write(req.files.photo.path)
+      .then(function () {
+        // Move tmp file to final destination.
+        return fse.moveAsync(req.files.photo.path, [USER_PHOTO_DIR, req.files.photo.name].join('/'));
+      })
       .then(function () {
         // Delete temp file after moving to main location
         return fse.removeAsync(req.files.photo.path);

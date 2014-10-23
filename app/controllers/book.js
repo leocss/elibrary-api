@@ -5,6 +5,7 @@ var _ = require('lodash'),
   Promise = require('bluebird'),
   knex = require('knex'),
   fse = Promise.promisifyAll(require('fs-extra')),
+  gm = require('gm'),
   errors = require('../errors'),
   models = require('../models');
 
@@ -186,16 +187,25 @@ module.exports = {
       throw new errors.MissingParamError(['image']);
     }
 
-    return fse.moveAsync(req.files.image.path, BOOK_IMG_DIR + '/' + req.files.image.name).then(function () {
-      // Delete temp file after moving to main location
-      return fse.removeAsync(req.files.image.path);
-    }).then(function () {
-      return models.Book.update(req.params.book_id, {
-        preview_image: req.files.image.name
+    var gmi = gm(req.files.image.path);
+    gmi.write = Promise.promisify(gmi.write);
+    gmi.resize(240, 320);
+
+    return gmi.write(req.files.image.path)
+      .then(function () {
+        // Move tmp file to final destination.
+        return fse.moveAsync(req.files.image.path, BOOK_IMG_DIR + '/' + req.files.image.name);
+      })
+      .then(function () {
+        // Delete temp file after moving to main location
+        return fse.removeAsync(req.files.image.path);
+      }).then(function () {
+        return models.Book.update(req.params.book_id, {
+          preview_image: req.files.image.name
+        });
+      }).catch(function (error) {
+        throw new errors.ApiError(error.message || error);
       });
-    }).catch(function (error) {
-      throw new errors.ApiError(error.message || error);
-    });
   },
 
   /**
