@@ -295,7 +295,7 @@ module.exports = {
         user_id: req.params.user_id
       }
     }, {require: false});
-  }
+  },
 
   /**
    * Gets all user billing transactions

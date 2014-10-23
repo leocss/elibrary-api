@@ -110,6 +110,11 @@ module.exports = {
       if (includes.indexOf('books') != -1) {
         result.forEach(function (category) {
           promises.push(category.related('books').query(function (qb) {
+            qb.select('*');
+            qb.select(
+              knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = books.id) AS likes_count'));
+            qb.select(
+              knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = books.id) AS views_count'));
             qb.limit(parseInt(req.query.books_limit || 5));
           }).fetch());
         });
