@@ -9,6 +9,8 @@ var _ = require('lodash'),
   errors = require('../errors'),
   models = require('../models');
 
+var POST_IMG_DIR = __dirname + '/../../public/files/posts';
+
 module.exports = {
   /**
    *
@@ -59,6 +61,40 @@ module.exports = {
       qb.select(
         knex.raw('(SELECT COUNT(id) FROM views WHERE object = "post" AND object_id = "' + req.params.id + '") AS views_count'));
     });
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  uploadFeaturedImage: function (context, req, res) {
+    console.log('Handling photo');
+    if (!req.files.image) {
+      throw new errors.MissingParamError(['image']);
+    }
+
+    var gmi = gm(req.files.image.path);
+    gmi.write = Promise.promisify(gmi.write);
+    gmi.resize(640, 320);
+
+    return gmi.write(req.files.image.path)
+      .then(function () {
+        // Move tmp file to final destination.
+        return fse.moveAsync(req.files.image.path, POST_IMG_DIR + '/' + req.files.image.name);
+      })
+      .then(function () {
+        // Delete temp file after moving to main location
+        return fse.removeAsync(req.files.image.path);
+      }).then(function () {
+        return models.Post.update(req.params.post_id, {
+          image: req.files.image.name
+        });
+      }).catch(function (error) {
+        throw new errors.ApiError(error.message || error);
+      });
   },
 
   /**
