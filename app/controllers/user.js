@@ -20,20 +20,21 @@ module.exports = {
 
       if (req.query.filter) {
         if (req.query.filter != '*') {
-          query.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+          qb.where('first_name', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+          qb.orWhere('last_name', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
         }
 
         if (req.query.type && (['staff', 'student'].indexOf(req.query.type) != -1)) {
-          query.where('type', '=', req.query.type);
+          qb.where('type', '=', req.query.type);
         }
       }
 
       if (req.query.limit && !req.query.stat) {
-        query.limit(req.query.limit);
+        qb.limit(parseInt(req.query.limit));
       }
 
       if (req.query.offset && !req.query.stat) {
-        query.skip(req.query.offset);
+        qb.skip(parseInt(req.query.offset));
       }
     }).fetchAll();
   },
