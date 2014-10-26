@@ -16,7 +16,13 @@ var EtestQuestionModel = base.Model.extend({
     'answer',
     'created_at',
     'updated_at'
-  ]
+  ],
+
+  virtuals: {
+    options_parsed: function() {
+      return JSON.parse(this.get('options'));
+    }
+  }
 });
 
 var EtestQuestionCollection = base.Collection.extend({
