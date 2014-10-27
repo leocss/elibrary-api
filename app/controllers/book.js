@@ -278,6 +278,10 @@ module.exports = {
   },
 
   /**
+   * Endpoint for reserving books.
+   *
+   * POST /books/43/reserve
+   * {"duration": 30}
    *
    * @param context
    * @param req
@@ -327,6 +331,13 @@ module.exports = {
       });
   },
 
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   getBookLikes: function (context, req, res) {
     return models.Like.findMany({
       where: {
@@ -336,6 +347,13 @@ module.exports = {
     }, {require: false});
   },
 
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   addBookUserLike: function (context, req, res) {
     if (context.user === null) {
       // Ensure client access token cannot access this endpoint
@@ -396,6 +414,13 @@ module.exports = {
     }, {require: false});
   },
 
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   addBookUserView: function (context, req, res) {
     if (context.user === null) {
       // Ensure client access token cannot access this endpoint
