@@ -20,7 +20,7 @@ module.exports = {
       knex.table('views').select(knex.raw('COUNT("id") AS total_views')),
       knex.table('books').select(knex.raw('COUNT("id") AS total_books')),
       knex.table('books_copies').select(knex.raw('COUNT("id") AS total_books_copies')),
-      knex.table('books_reserved').select(knex.raw('COUNT("id") AS total_reserved_books'))
+      knex.table('books_reserves').select(knex.raw('COUNT("id") AS total_reserved_books'))
     ];
 
     return Promise.all(stats).then(function (results) {
