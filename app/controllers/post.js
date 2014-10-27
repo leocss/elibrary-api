@@ -57,6 +57,8 @@ module.exports = {
       withRelated: includes
     }, function(qb) {
       qb.select(
+        knex.raw('(SELECT COUNT(id) FROM comments WHERE object = "post" AND object_id = "' + req.params.id + '") AS comments_count'));
+      qb.select(
         knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "post" AND object_id = "' + req.params.id + '") AS likes_count'));
       qb.select(
         knex.raw('(SELECT COUNT(id) FROM views WHERE object = "post" AND object_id = "' + req.params.id + '") AS views_count'));

@@ -20,6 +20,11 @@ var knex = require('knex'),
 knex = knex(knexfile.development);
 
 var queue = [];
+var etest_courses = [
+  'Computer Science',
+  'Physics'
+];
+
 var categories = {
   book: [
     'Mathematics',
@@ -74,19 +79,19 @@ return Promise.resolve().then(function () {
   return knex.raw('SET @@global.FOREIGN_KEY_CHECKS=0;')
 }).then(function () {
   return Promise.all([
-      knex.table('users').truncate(),
-      knex.table('api_sessions').truncate(),
-      knex.table('api_clients').truncate(),
-      knex.table('books').truncate(),
-      knex.table('books_issues').truncate(),
-      knex.table('print_documents').truncate(),
-      knex.table('print_jobs').truncate(),
-      knex.table('categories').truncate(),
-      knex.table('posts').truncate(),
-      knex.table('likes').truncate(),
-      knex.table('views').truncate(),
-      knex.table('comments').truncate(),
-    ]).then(function () {
+    knex.table('users').truncate(),
+    knex.table('api_sessions').truncate(),
+    knex.table('api_clients').truncate(),
+    knex.table('books').truncate(),
+    knex.table('books_issues').truncate(),
+    knex.table('print_documents').truncate(),
+    knex.table('print_jobs').truncate(),
+    knex.table('categories').truncate(),
+    knex.table('posts').truncate(),
+    knex.table('likes').truncate(),
+    knex.table('views').truncate(),
+    knex.table('comments').truncate(),
+  ]).then(function () {
     return true;
   });
 }).then(function () {
@@ -233,6 +238,25 @@ return Promise.resolve().then(function () {
       }).then(function () {
         console.log('Done.');
       });
+  })
+  .then(function () {
+    console.log('Seeding "etest_courses" table');
+    queue = [];
+
+    etest_courses.forEach(function (course) {
+      queue.push(knex.table('etest_courses').insert({
+        name: course,
+        description: casual.text,
+        created_at: new Date(),
+        updated_at: new Date()
+      }));
+    });
+
+
+    return Promise.all(queue).then(function () {
+      console.log('Done.');
+      return true;
+    });
   })
   .then(function () {
     process.exit();

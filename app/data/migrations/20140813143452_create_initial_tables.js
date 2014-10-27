@@ -114,6 +114,24 @@ exports.up = function (knex, Promise) {
       table.dateTime('returned_at');
     })
   /**
+   * Create 'books_copies' table
+   */
+    .createTable('books_copies', function (table) {
+      table.increments('id');
+      table.integer('book_id').unsigned();
+      table.string('rfid');
+    })
+  /**
+   * Create 'books_reserved' table
+   */
+    .createTable('books_reserves', function (table) {
+      table.increments('id');
+      table.integer('user_id').unsigned();
+      table.integer('book_id').unsigned();
+      table.dateTime('expire_at');
+      table.dateTime('created_at');
+    })
+  /**
    * Create 'posts' table
    */
     .createTable('posts', function (table) {
@@ -129,6 +147,47 @@ exports.up = function (knex, Promise) {
       table.boolean('is_featured').defaultTo(0);
       table.integer('updated_by').defaultTo(0);
       table.timestamps();
+    })
+  /**
+   * Create 'etest_courses' table
+   */
+    .createTable('etest_courses', function(table ) {
+      table.increments('id');
+      table.string('name');
+      table.string('description');
+      table.timestamps();
+    })
+  /**
+   * Create 'etest_questions' table
+   */
+    .createTable('etest_questions', function (table) {
+      table.increments('id');
+      table.integer('course_id').unsigned();
+      table.string('question');
+      table.string('type');
+      table.string('options');
+      table.integer('answer');
+      table.timestamps();
+    })
+  /**
+   * Create 'etest_session' table
+   */
+    .createTable('etest_sessions', function (table) {
+      table.increments('id');
+      table.integer('user_id').unsigned();
+      table.integer('course_id').unsigned();
+      table.enum('status', ['completed', 'in_progress']).defaultTo('in_progress');
+      table.dateTime('created_at');
+      table.dateTime('ended_at');
+    })
+  /**
+   * Create 'etest_session_questions' table
+   */
+    .createTable('etest_sessions_questions', function (table) {
+      table.integer('question_id');
+      table.integer('session_id');
+      table.enum('selected_answer');
+      table.boolean('correctly_answered').defaultTo(0);
     })
   /**
    * Create 'categories' table.
@@ -189,6 +248,10 @@ exports.down = function (knex, Promise) {
   return knex.raw('SET FOREIGN_KEY_CHECKS=0;')
     .then(function () {
       return knex.schema
+        .dropTable('etest_sessions_questions')
+        .dropTable('etest_sessions')
+        .dropTable('etest_questions')
+        .dropTable('etest_courses')
         .dropTable('transactions')
         .dropTable('notifications')
         .dropTable('views')
@@ -198,6 +261,8 @@ exports.down = function (knex, Promise) {
         .dropTable('posts')
         .dropTable('api_sessions')
         .dropTable('api_clients')
+        .dropTable('books_reserves')
+        .dropTable('books_copies')
         .dropTable('books_issues')
         .dropTable('books')
         .dropTable('print_documents')

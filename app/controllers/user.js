@@ -406,10 +406,29 @@ module.exports = {
 
     var amount = parseInt(req.body.amount);
     models.User.findById(req.params.user_id).then(function (user) {
+
+      if (parseInt(user.get('fund')) < amount) {
+        throw new errors.ApiError('The amount specified exceeds the users funds.');
+      }
+
       return user.update({
         debt: (parseInt(user.get('debt')) - amount),
         fund: (parseInt(user.get('fund')) - amount)
       });
-    })
+    });
+  },
+
+  /**
+   * Gets all user etest sessions
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  getEtestSessions: function (context, req, res) {
+    return models.EtestSession.findMany({
+      where: {user_id: req.params.user_id}
+    }, {require: false});
   }
 };

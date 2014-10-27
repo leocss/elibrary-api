@@ -33,4 +33,7 @@ module.exports = function (app) {
   app.post('/users/:user_id/fund', app.apiHandler(user.fundAccount));
   app.post('/users/:user_id/debt', app.apiHandler(user.incureDept));
   app.delete('/users/:user_id/debt', app.apiHandler(user.resolveDept));
+
+  // Etest
+  app.get('/users/:user_id/etest/sessions', app.apiHandler(user.getEtestSessions));
 };
