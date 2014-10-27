@@ -111,11 +111,30 @@ module.exports = {
    * @returns {*}
    */
   submitSessionResult: function (context, req) {
-    var session;
+    var required = ['answers'];
+
+    req.body.answers.forEach(function(answer, index) {
+      req.body.answers[index]['id'] = parseInt(answer.id);
+    });
+
     return models.EtestSession.findById(req.params.session_id, {
       withRelated: ['questions']
-    }).then(function (result) {
-      session = result;
-    });
+    }).then(function (session) {
+      var promises = [], selected_answer,
+        questions = session.related('questions').models;
+
+      questions.forEach(function(question) {
+        selected_answer = _.find(req.body.answers, {'id': question.get('id')})['answer'];
+
+        promises.push(models.EtestSessionQuestion.update({
+          session_id: session.get('id'),
+          question_id: question.get('id'),
+          selected_answer: selected_answer,
+          correctly_answered: selected_answer == question.get('answer')
+        }));
+      });
+
+      return Promise.all(promises);
+    }).tjh;
   }
 };

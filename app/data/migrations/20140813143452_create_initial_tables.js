@@ -151,7 +151,7 @@ exports.up = function (knex, Promise) {
   /**
    * Create 'etest_courses' table
    */
-    .createTable('etest_courses', function(table ) {
+    .createTable('etest_courses', function(table) {
       table.increments('id');
       table.string('name');
       table.string('description');
@@ -186,7 +186,7 @@ exports.up = function (knex, Promise) {
     .createTable('etest_sessions_questions', function (table) {
       table.integer('question_id');
       table.integer('session_id');
-      table.enum('selected_answer');
+      table.integer('selected_answer');
       table.boolean('correctly_answered').defaultTo(0);
     })
   /**
