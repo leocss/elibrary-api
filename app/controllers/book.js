@@ -7,8 +7,11 @@ var _ = require('lodash'),
   knex = require('knex'),
   fse = Promise.promisifyAll(require('fs-extra')),
   gm = require('gm'),
+  bookshelf = require('../bootstrap/database').bookshelf,
   errors = require('../errors'),
   models = require('../models');
+
+var knex = bookshelf.knex;
 
 var BOOK_IMG_DIR = __dirname + '/../../public/files/books/images';
 var BOOK_FILE_DIR = __dirname + '/../../public/files/books/files'
@@ -279,7 +282,7 @@ module.exports = {
    * @param context
    * @param req
    */
-  reserveBook: function(context, req){
+  reserveBook: function (context, req) {
     if (context.user === null) {
       // Ensure client access token cannot access this endpoint
       throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
@@ -288,12 +291,40 @@ module.exports = {
     // Duration in 'days'. if none is specified to the api...
     // The api uses the default => 7 days (1 week)
     var duration = req.body.duration || 7;
+    var book_id = req.params.book_id;
 
-    return models.BookReserve.create({
-      book_id: req.params.book_id,
-      user_id: context.user.get('id'),
-      expires_at: moment().add(duration, 'days')
-    });
+    return models.Book.findById(book_id, {withRelated: ['copies']})
+      // Ensure that this user has not already reserved this book
+      .tap(function(book) {
+        return models.BookReserve.findOne({
+          user_id: context.user.get('id'),
+          book_id: book_id
+        }).then(function(reserve) {
+          if (reserve) {
+            throw new errors.ApiError('This user has already reserved this book.');
+          }
+        });
+      })
+      // Check the total hard copies of the book are available by
+      // also filtering the already reserved ones out.
+      .tap(function (book) {
+        return knex('books_copies').select(knex.raw('COUNT(books_copies.id) AS total_available')).where(function () {
+          this.whereRaw('books_copies.id NOT IN (SELECT books_reserves.id FROM books_reserves)');
+        }).first().then(function (row) {
+          if (row.total_available == 0) {
+            throw new errors.ApiError('There are no more hard copies of this books available at the moment. Check back later.');
+          }
+        });
+      })
+      // All seems well.
+      // We create the book reserve and return the result.
+      .then(function(book) {
+        return models.BookReserve.create({
+          book_id: book_id,
+          user_id: context.user.get('id'),
+          expires_at: moment().add(duration, 'days')
+        })
+      });
   },
 
   getBookLikes: function (context, req, res) {

@@ -5,6 +5,7 @@
 module.exports = {
   // Book
   Book: require('./book').Book,
+  BookCopy: require('./book-copy').BookCopy,
   BookReserve: require('./book-reserve').BookReserve,
 
   // Posts / Article
