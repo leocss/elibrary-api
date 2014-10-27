@@ -3,6 +3,8 @@
  */
 var base = require('./base');
 
+var proto = base.Model.prototype;
+
 var EtestQuestionModel = base.Model.extend({
   tableName: 'etest_questions',
   hasTimestamps: true,
@@ -18,11 +20,11 @@ var EtestQuestionModel = base.Model.extend({
     'updated_at'
   ],
 
-  virtuals: {
-    options_parsed: function() {
-      return JSON.parse(this.get('options'));
-    }
-  }
+  toJSON: function (options) {
+    var attrs = proto.toJSON.call(this, options);
+    attrs.options = JSON.parse(this.get('options'));
+    return attrs;
+  },
 });
 
 var EtestQuestionCollection = base.Collection.extend({

@@ -15,6 +15,13 @@ var USER_PHOTO_DIR = __dirname + '/../../public/files/user-photos';
 var PRINT_JOB_DIR = __dirname + '/../../public/files/print-jobs';
 
 module.exports = {
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   getUsers: function (context, req, res) {
     return new models.User().query(function (qb) {
 

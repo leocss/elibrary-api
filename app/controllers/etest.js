@@ -110,7 +110,7 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  completeSession: function (context, req) {
+  submitSessionResult: function (context, req) {
     var session;
     return models.EtestSession.findById(req.params.session_id, {
       withRelated: ['questions']

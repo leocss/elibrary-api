@@ -13,9 +13,19 @@ var BaseModel = bookshelf.Model.extend({
   permitted: [],
 
   initialize: function() {
+    this.on('fetched', this.fetched, this);
     this.on('creating', this.creating, this);
     this.on('updating', this.updating, this);
     this.on('saving', this.saving, this);
+  },
+
+  /**
+   *
+   * @param model
+   * @param attributes
+   * @param options
+   */
+  fetched: function(model, response, options) {
   },
 
   /**
