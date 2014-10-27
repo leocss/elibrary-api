@@ -87,8 +87,8 @@ var BaseModel = bookshelf.Model.extend({
   },
 
   updateBy: function(where, attributes, options) {
-    return
-  }
+    
+  },
 
   /**
    * @param attributes
