@@ -20,6 +20,7 @@ module.exports = function (app) {
   app.post('/books/:book_id/image', app.apiHandler(book.uploadBookImage));
   app.post('/books/:book_id/book', app.apiHandler(book.uploadBookFile));
   app.delete('/books/:id', app.apiHandler(book.deleteBook));
+  app.post('/books/:book_id/reserve', app.apiHandler(book.reserveBook));
 
   // Book Likes
   app.get('/books/:book_id/likes', app.apiHandler(book.getBookLikes));

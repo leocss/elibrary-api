@@ -2,6 +2,7 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 var _ = require('lodash'),
+  moment = require('moment'),
   Promise = require('bluebird'),
   knex = require('knex'),
   fse = Promise.promisifyAll(require('fs-extra')),
@@ -270,6 +271,28 @@ module.exports = {
       return {
         id: req.params.id
       };
+    });
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
+   */
+  reserveBook: function(context, req){
+    if (context.user === null) {
+      // Ensure client access token cannot access this endpoint
+      throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
+    }
+
+    // Duration in 'days'. if none is specified to the api...
+    // The api uses the default => 7 days (1 week)
+    var duration = req.body.duration || 7;
+
+    return models.BookReserve.create({
+      book_id: req.params.book_id,
+      user_id: context.user.get('id'),
+      expires_at: moment().add(duration, 'days')
     });
   },
 
