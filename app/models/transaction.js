@@ -13,6 +13,8 @@ var TransactionModel = base.Model.extend({
     'user_id',
     'description',
     'amount',
+    'status',
+    'message',
     'type',
     'created_at'
   ],

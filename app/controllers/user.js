@@ -305,7 +305,7 @@ module.exports = {
     return models.UserFavourite.destroy({
       user_id: req.params.user_id,
       id: req.params.favourite_id
-    })
+    });
   },
 
   /**
@@ -316,14 +316,14 @@ module.exports = {
    * @param res
    */
   addFavourite: function (context, req, res) {
-    var required = ['item_id', 'type', 'user_id'];
+    var required = ['object_id', 'object', 'user_id'];
     required.forEach(function (item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
     });
 
-    return models.UserFavourite.create(_.pick(req.body, ['item_id', 'type', 'user_id']));
+    return models.UserFavourite.create(_.pick(req.body, ['object_id', 'object', 'user_id']));
   },
 
   /**
@@ -339,6 +339,29 @@ module.exports = {
         user_id: req.params.user_id
       }
     }, {require: false});
+  },
+
+  /**
+   * Logs a transaction made by a user
+   *
+   * @param context
+   * @param req
+   * @returns {*}
+   */
+  logTransaction: function (context, req) {
+    var data = {};
+    var required = ['transaction_id', 'type', 'description', 'amount', 'status', 'message'];
+    required.forEach(function (item) {
+      if (!_.has(req.body, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+
+      data[item] = req.body[item];
+    });
+
+    data.user_id = req.params.user_id;
+
+    return models.Transaction.create(data);
   },
 
   /**

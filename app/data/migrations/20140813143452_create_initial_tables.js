@@ -229,6 +229,9 @@ exports.up = function (knex, Promise) {
       table.integer('user_id').unsigned();
       table.text('description');
       table.integer('amount');
+      table.string('status', 50); // success | failed | aborted
+      table.string('message'); // message returned from transaction api.
+      table.string();
       table.enum('type', ['fund', 'cashout']);
       table.dateTime('created_at');
     })
