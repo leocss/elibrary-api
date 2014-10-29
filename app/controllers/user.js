@@ -64,13 +64,15 @@ module.exports = {
   },
 
   /**
+   *
    * @param context
-   * @param request
+   * @param req
+   * @returns {*}
    */
-  updateUser: function (context, request) {
-    return models.User.update(_.pick(request.body, [
+  updateUser: function (context, req) {
+    return models.User.update(_.pick(req.body, [
       'first_name', 'last_name', 'email', 'address',
-      'gender', 'matric_number', 'school', 'course'
+      'gender', 'phone', 'rfid', 'type', 'unique_id'
     ]));
   },
 
