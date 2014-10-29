@@ -55,10 +55,12 @@ module.exports = {
    * @param response
    */
   getUser: function (context, request, response) {
-    return models.User.findById(request.params.id)
-      .then(function (user) {
-        return user.toJSON();
-      });
+    var includes = context.parseIncludes(['printJobs', 'favourites', 'transactions']);
+    return models.User.findById(request.params.id, {
+      withRelated: includes
+    }).then(function (user) {
+      return user.toJSON();
+    });
   },
 
   /**
