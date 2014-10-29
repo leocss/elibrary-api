@@ -18,7 +18,7 @@
     "knex": "~0.6",
     "lodash": "~2.0",
     "method-override": "~2.0",
-    "moment": "~2.7",
+    "moment": "~2.8",
     "morgan": "~1.0",
     "multer": "~0.1",
     "mysql": "~2.4",

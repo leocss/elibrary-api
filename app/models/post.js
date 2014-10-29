@@ -27,7 +27,7 @@ var PostModel = base.Model.extend({
   ],
 
   category: function() {
-    return this.belongsTo(require('./category').Category, 'category_id').query({where: {object: 'post'}});
+    return this.belongsTo(require('./category').Category, 'category_id').query({where: {object_type: 'posts'}});
   },
 
   author: function() {
@@ -35,15 +35,15 @@ var PostModel = base.Model.extend({
   },
 
   comments: function() {
-    return this.hasMany(require('./comment').Comments, 'object_id').query({where: {object: 'post'}});
+    return this.hasMany(require('./comment').Comments, 'object_id').query({where: {object_type: 'posts'}});
   },
 
   likes: function() {
-    return this.hasMany(require('./like').Like, 'object_id').query({where: {object: 'post'}});
+    return this.hasMany(require('./like').Like, 'object_id').query({where: {object_type: 'posts'}});
   },
 
   views: function() {
-    return this.hasMany(require('./view').View, 'object_id').query({where: {object: 'post'}});
+    return this.hasMany(require('./view').View, 'object_id').query({where: {object_type: 'posts'}});
   }
 });
 

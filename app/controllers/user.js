@@ -286,13 +286,15 @@ module.exports = {
    * @param response
    */
   getFavourites: function (context, req, res) {
+    var includes = context.parseIncludes(['object']);
+
     return models.UserFavourite.findMany({
         where: {
           user_id: req.params.user_id
         }
       }, {
         require: false,
-        withRelated: ['book']
+        withRelated: includes
       }
     );
   },
@@ -320,14 +322,16 @@ module.exports = {
    * @param res
    */
   addFavourite: function (context, req, res) {
-    var required = ['object_id', 'object', 'user_id'];
+    var required = ['object_id', 'object_type'];
     required.forEach(function (item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
     });
 
-    return models.UserFavourite.create(_.pick(req.body, ['object_id', 'object', 'user_id']));
+    var data = _.pick(req.body, required);
+    data.user_id = req.params.user_id;
+    return models.UserFavourite.create(data);
   },
 
   /**

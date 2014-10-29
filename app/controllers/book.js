@@ -67,9 +67,9 @@ module.exports = {
       }
 
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = books.id) AS likes_count'));
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = books.id) AS views_count'));
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
     });
 
     return model.fetchAll({
@@ -93,9 +93,9 @@ module.exports = {
       withRelated: includes
     }, function (qb) {
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS likes_count'));
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = "' + req.params.book_id + '") AS likes_count'));
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS views_count'));
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = "' + req.params.book_id + '") AS views_count'));
     });
   },
 
@@ -117,9 +117,9 @@ module.exports = {
           promises.push(category.related('books').query(function (qb) {
             qb.select('*');
             qb.select(
-              knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = books.id) AS likes_count'));
+              knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
             qb.select(
-              knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = books.id) AS views_count'));
+              knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
             qb.limit(parseInt(req.query.books_limit || 5));
           }).fetch());
         });
@@ -146,9 +146,9 @@ module.exports = {
       qb.orderByRaw('rand()');
       qb.limit(1);
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = books.id) AS likes_count'));
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = books.id) AS views_count'));
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
     }).fetch({withRelated: includes});
   },
 
@@ -341,7 +341,7 @@ module.exports = {
   getBookLikes: function (context, req, res) {
     return models.Like.findMany({
       where: {
-        object: 'book',
+        object_type: 'books',
         object_id: req.params.id
       }
     }, {require: false});
@@ -362,7 +362,7 @@ module.exports = {
 
     var data = {};
     data.user_id = context.user.get('id');
-    data.object = 'book';
+    data.object_type = 'books';
     data.object_id = parseInt(req.params.book_id);
 
     // Try to retrieve the liked data, the orm 
@@ -393,7 +393,7 @@ module.exports = {
     return models.Like.destroy({
       user_id: context.user.get('id'),
       object_id: req.params.book_id,
-      object: 'book'
+      object_type: 'books'
     }).return({success: true});
   },
 
@@ -408,7 +408,7 @@ module.exports = {
   getBookViews: function (context, req, res) {
     return models.View.findMany({
       where: {
-        object: 'book',
+        object_type: 'books',
         object_id: req.params.book_id
       }
     }, {require: false});
@@ -429,7 +429,7 @@ module.exports = {
 
     var data = {};
     data.user_id = context.user.get('id');
-    data.object = 'book';
+    data.object_type = 'books';
     data.object_id = parseInt(req.params.book_id);
 
     return models.View.findOne({

@@ -151,7 +151,7 @@ return Promise.resolve().then(function () {
           title = categories[object][key];
           queue.push(knex.table('categories').insert({
             title: title,
-            object: object,
+            object_type: object,
             created_at: new Date(),
             updated_at: new Date()
           }));
@@ -216,7 +216,7 @@ return Promise.resolve().then(function () {
 
     return knex.table('categories')
       .select('*')
-      .where('object', '=', 'post')
+      .where('object_type', '=', 'post')
       .then(function (categories) {
         for (var i = 0; i < 20; i++) {
           title = casual.title;

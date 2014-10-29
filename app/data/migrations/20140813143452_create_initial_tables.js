@@ -31,7 +31,7 @@ exports.up = function (knex, Promise) {
     .createTable('users_favourites', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned().index();
-      table.string('object').index();
+      table.string('object_type', 50).index();
       table.integer('object_id').unsigned().index();
       table.dateTime('created_at');
     })
@@ -195,7 +195,7 @@ exports.up = function (knex, Promise) {
    */
     .createTable('categories', function (table) {
       table.increments('id');
-      table.string('object', 30);
+      table.string('object_type', 50);
       table.string('title');
       table.string('description');
       table.timestamps();
@@ -206,7 +206,7 @@ exports.up = function (knex, Promise) {
     .createTable('comments', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned();
-      table.string('object', 30);
+      table.string('object_type', 50);
       table.integer('object_id').unsigned();
       table.integer('likes_count').defaultTo(0);
       table.text('content');
@@ -218,7 +218,7 @@ exports.up = function (knex, Promise) {
     .createTable('likes', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned();
-      table.string('object', 30);
+      table.string('object_type', 50);
       table.integer('object_id').unsigned();
       table.dateTime('created_at');
     })
@@ -227,12 +227,12 @@ exports.up = function (knex, Promise) {
    */
     .createTable('transactions', function (table) {
       table.integer('id').unsigned().unique();
+      table.string('transaction_id');
       table.integer('user_id').unsigned();
       table.text('description');
       table.integer('amount');
       table.string('status', 50); // success | failed | aborted
       table.string('message'); // message returned from transaction api.
-      table.string();
       table.enum('type', ['fund', 'cashout']);
       table.dateTime('created_at');
     })
@@ -242,7 +242,7 @@ exports.up = function (knex, Promise) {
     .createTable('views', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned();
-      table.string('object', 30);
+      table.string('object_type', 50);
       table.integer('object_id').unsigned();
       table.dateTime('created_at');
     });
@@ -257,7 +257,7 @@ exports.down = function (knex, Promise) {
         .dropTable('etest_questions')
         .dropTable('etest_courses')
         .dropTable('transactions')
-        .dropTable('notifications')
+        // .dropTable('notifications')
         .dropTable('views')
         .dropTable('likes')
         .dropTable('comments')

@@ -12,7 +12,7 @@ var CategoryModel = base.Model.extend({
   permitted: [
     'id',
     'title',
-    'object',
+    'object_type',
     'description',
     'created_at',
     'updated_at'
@@ -27,11 +27,11 @@ var CategoryModel = base.Model.extend({
   }
 }, {
   forBooks: function(options) {
-    return this.findMany({where: {object: 'book'}}, _.extend({require: false}, options));
+    return this.findMany({where: {object_type: 'books'}}, _.extend({require: false}, options));
   },
 
   forPosts: function(options) {
-    return this.findMany({where: {object: 'post'}}, _.extend({require: false}, options));
+    return this.findMany({where: {object_type: 'posts'}}, _.extend({require: false}, options));
   }
 });
 

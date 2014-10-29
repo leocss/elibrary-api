@@ -57,17 +57,17 @@ module.exports = {
       withRelated: includes
     }, function (qb) {
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM comments WHERE object = "post" AND object_id = "' + req.params.id + '") AS comments_count'));
+        knex.raw('(SELECT COUNT(id) FROM comments WHERE object_type = "posts" AND object_id = "' + req.params.id + '") AS comments_count'));
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "post" AND object_id = "' + req.params.id + '") AS likes_count'));
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "posts" AND object_id = "' + req.params.id + '") AS likes_count'));
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "post" AND object_id = "' + req.params.id + '") AS views_count'));
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "posts" AND object_id = "' + req.params.id + '") AS views_count'));
 
       if (context.user) {
         qb.select(
           knex.raw('(' +
           'SELECT COUNT(likes.id) FROM likes ' +
-          'WHERE object = "post" AND object_id = "' + req.params.id + '" AND user_id = "' + context.user.get('id') + '"' +
+          'WHERE object_type = "posts" AND object_id = "' + req.params.id + '" AND user_id = "' + context.user.get('id') + '"' +
           ') AS context_user_liked')
         );
       }
@@ -143,7 +143,7 @@ module.exports = {
    */
   createCategory: function (context, req, res) {
     var data = _.pick(req.body, ['title', 'description']);
-    data.object = 'post';
+    data.object_type = 'posts';
 
     return models.Category.create(data);
   },
@@ -218,7 +218,7 @@ module.exports = {
   getPostLikes: function (context, req, res) {
     return models.Like.findMany({
       where: {
-        object: 'post',
+        object_type: 'posts',
         object_id: req.params.id
       }
     }, {require: false});
@@ -232,7 +232,7 @@ module.exports = {
 
     var data = {};
     data.user_id = context.user.get('id');
-    data.object = 'post';
+    data.object_type = 'posts';
     data.object_id = req.params.id;
 
     // Try to retrieve the liked data, the orm 
@@ -255,14 +255,14 @@ module.exports = {
     return models.Like.destroy({
       user_id: context.user.get('id'),
       object_id: req.params.id,
-      object: 'post'
+      object_type: 'posts'
     }).return({success: true});
   },
 
   getPostViews: function (context, req, res) {
     return models.View.findMany({
       where: {
-        object: 'post',
+        object_type: 'posts',
         object_id: req.params.id
       }
     }, {require: false});
@@ -276,7 +276,7 @@ module.exports = {
 
     var data = {};
     data.user_id = context.user.get('id');
-    data.object = 'post';
+    data.object_type = 'posts';
     data.object_id = req.params.id;
 
     // Try to retrieve the view data, the orm 
@@ -303,7 +303,7 @@ module.exports = {
 
     return models.Comment.findMany({
       where: {
-        object: 'post',
+        object_type: 'posts',
         object_id: req.params.id // Post ID
       }
     }, {
@@ -330,7 +330,7 @@ module.exports = {
       }
     });
 
-    data.object = 'post';
+    data.object_type = 'posts';
     data.object_id = data.post_id;
     delete data['post_id'];
 
