@@ -19,7 +19,7 @@ module.exports = {
 
   // User
   User: require('./user').User,
-  UserFavourite: require('./user-favourite').UserFavourite,
+  UserFavorite: require('./user-favorite').UserFavorite,
 
   // Api
   ApiClient: require('./api-client').ApiClient,

@@ -59,8 +59,8 @@ var UserModel = base.Model.extend({
     return this.hasMany(require('./print-job').PrintJobs, 'user_id');
   },
 
-  favourites: function () {
-    return this.hasMany(require('./user-favourite').Favourites, 'user_id');
+  favorites: function () {
+    return this.hasMany(require('./user-favorite').Favorites, 'user_id');
   },
 
   transactions: function () {

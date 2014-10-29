@@ -26,9 +26,9 @@ exports.up = function (knex, Promise) {
       table.timestamps();
     })
   /**
-   * Create 'users_favourites' table
+   * Create 'users_favorites' table
    */
-    .createTable('users_favourites', function (table) {
+    .createTable('users_favorites', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned().index();
       table.string('object_type', 50).index();
@@ -271,7 +271,7 @@ exports.down = function (knex, Promise) {
         .dropTable('books')
         .dropTable('print_documents')
         .dropTable('print_jobs')
-        .dropTable('users_favourites')
+        .dropTable('users_favorites')
         .dropTable('users');
     }).then(function () {
       return knex.raw('SET FOREIGN_KEY_CHECKS=0;');

@@ -55,7 +55,7 @@ module.exports = {
    * @param response
    */
   getUser: function (context, request, response) {
-    var includes = context.parseIncludes(['printJobs', 'favourites', 'transactions']);
+    var includes = context.parseIncludes(['printJobs', 'favorites', 'transactions']);
     return models.User.findById(request.params.id, {
       withRelated: includes
     }).then(function (user) {
@@ -285,10 +285,10 @@ module.exports = {
    * @param request
    * @param response
    */
-  getFavourites: function (context, req, res) {
+  getFavorites: function (context, req, res) {
     var includes = context.parseIncludes(['object']);
 
-    return models.UserFavourite.findMany({
+    return models.UserFavorite.findMany({
         where: {
           user_id: req.params.user_id
         }
@@ -300,28 +300,28 @@ module.exports = {
   },
 
   /**
-   * Removes an item from the user favourites.
+   * Removes an item from the user favorites.
    *
    * @param context
    * @param req
    * @param res
    * @returns {*}
    */
-  deleteFavourite: function (context, req, res) {
-    return models.UserFavourite.destroy({
+  deleteFavorite: function (context, req, res) {
+    return models.UserFavorite.destroy({
       user_id: req.params.user_id,
-      id: req.params.favourite_id
+      id: req.params.favorite_id
     });
   },
 
   /**
-   * Adds an item to the user favourites.
+   * Adds an item to the user favorites.
    *
    * @param context
    * @param req
    * @param res
    */
-  addFavourite: function (context, req, res) {
+  addFavorite: function (context, req, res) {
     var required = ['object_id', 'object_type'];
     required.forEach(function (item) {
       if (!_.has(req.body, item)) {
@@ -331,7 +331,7 @@ module.exports = {
 
     var data = _.pick(req.body, required);
     data.user_id = req.params.user_id;
-    return models.UserFavourite.create(data);
+    return models.UserFavorite.create(data);
   },
 
   /**

@@ -4,8 +4,8 @@
 
 var base = require('./base');
 
-var UserFavouriteModel = base.Model.extend({
-  tableName: 'users_favourites',
+var UserFavoriteModel = base.Model.extend({
+  tableName: 'users_favorites',
   hasTimestamps: ['created_at'],
 
   permitted: [
@@ -21,11 +21,11 @@ var UserFavouriteModel = base.Model.extend({
   }
 });
 
-var UserFavouriteCollection = base.Collection.extend({
-  model: UserFavouriteModel
+var UserFavoriteCollection = base.Collection.extend({
+  model: UserFavoriteModel
 });
 
 module.exports = {
-  UserFavourite: UserFavouriteModel,
-  UserFavourites: UserFavouriteCollection
+  UserFavorite: UserFavoriteModel,
+  UserFavorites: UserFavoriteCollection
 };
