@@ -26,7 +26,7 @@ var etest_courses = [
 ];
 
 var categories = {
-  book: [
+  books: [
     'Mathematics',
     'Signals',
     'Computer Science',
