@@ -67,6 +67,36 @@ module.exports = {
    *
    * @param context
    * @param req
+   * @param res
+   * @returns {*}
+   */
+  checkUserExists: function (context, req, res) {
+    var required = ['unique_id', 'password'];
+    var includes = context.parseIncludes(['printJobs', 'favorites', 'transactions']);
+
+    required.forEach(function (item) {
+      if (!_.has(req.query, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+    });
+
+    return models.User.findOne({
+      where: {
+        unique_id: req.query.unique_id
+      }
+    }).tap(function (user) {
+      if (!user.checkPassword(req.query.password)) {
+        throw new errors.ApiError('Unable to authenticate user with provided credentials.');
+      }
+    }).then(function (user) {
+      return user;
+    });
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
    * @returns {*}
    */
   updateUser: function (context, req) {
