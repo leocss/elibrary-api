@@ -99,7 +99,7 @@ module.exports = {
 
 
     var name = req.body.name || req.files.image.name;
-    var savename = utils.safeString(path.basename(name)) + path.extension(name);
+    var savename = utils.safeString(path.basename(name)) + path.extname(name);
 
     return gmi.write(req.files.image.path)
       .then(function () {

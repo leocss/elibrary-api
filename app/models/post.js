@@ -2,7 +2,8 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var base = require('./base');
+var config = require('../config'),
+  base = require('./base');
 
 var PostModel = base.Model.extend({
   tableName: 'posts',
@@ -25,6 +26,12 @@ var PostModel = base.Model.extend({
     'created_at',
     'updated_at'
   ],
+
+  virtuals: {
+    image_url: function() {
+      return this.get('image') != null ? config.server.url() + '/files/posts/' + this.get('image') : null;
+    }
+  },
 
   category: function() {
     return this.belongsTo(require('./category').Category, 'category_id').query({where: {object_type: 'posts'}});
