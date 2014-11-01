@@ -98,7 +98,7 @@ module.exports = {
    * @returns {*}
    */
   updateUser: function (context, req) {
-    return models.User.update(_.pick(req.body, [
+    return models.User.update(req.params.user_id, _.pick(req.body, [
       'first_name', 'last_name', 'email', 'address',
       'gender', 'phone', 'rfid', 'type', 'unique_id'
     ]));
@@ -109,18 +109,22 @@ module.exports = {
    * @param request
    */
   createUser: function (context, req) {
-    var required = ['first_name', 'last_name', 'password', 'email', 'address', 'gender', 'unique_id', 'rfid', 'type'];
-    var data = _.pick(req.body, required);
+    var allowed = [
+      'first_name', 'last_name', 'password', 'phone', 'email',
+      'address', 'gender', 'unique_id', 'rfid', 'type'
+    ];
+    var data = _.pick(req.body, allowed);
 
-    required.forEach(function (item) {
-      if (!_.has(data, item)) {
-        throw new errors.MissingParamError([item]);
-      }
+    _.omit(allowed, ['phone', 'address']) // Required fields (just omit the optional ones)
+      .forEach(function (item) {
+        if (!_.has(data, item)) {
+          throw new errors.MissingParamError([item]);
+        }
 
-      if (_.isEmpty(data[item])) {
-        throw new errors.ApiError('"' + item + '" cannot be empty.');
-      }
-    });
+        if (_.isEmpty(data[item])) {
+          throw new errors.ApiError('"' + item + '" cannot be empty.');
+        }
+      });
 
     return models.User.create(data);
   },

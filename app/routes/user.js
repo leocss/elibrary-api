@@ -10,6 +10,7 @@ module.exports = function (app) {
   app.get('/users/check', app.apiHandler(user.checkUserExists));
   app.delete('/users/:id', app.apiHandler(user.deleteUser));
   app.get('/users/:id', app.apiHandler(user.getUser));
+  app.post('/users/:user_id', app.apiHandler(user.updateUser));
   app.post('/users/:user_id/photo', app.apiHandler(user.uploadPhoto));
 
   // Favorites
