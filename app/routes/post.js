@@ -16,7 +16,7 @@ module.exports = function(app) {
   // Post Item
   app.post('/posts/:post_id/image', app.apiHandler(post.uploadFeaturedImage));
   app.get('/posts/:id', app.apiHandler(post.getPost));
-  app.post('/posts/:id', app.apiHandler(post.updatePost));
+  app.post('/posts/:post_id', app.apiHandler(post.updatePost));
   app.delete('/posts/:id', app.apiHandler(post.deletePost));
 
   // Likes

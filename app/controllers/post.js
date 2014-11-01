@@ -2,8 +2,11 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var _ = require('lodash'),
+var path = require('path'),
+  _ = require('lodash'),
   knex = require('knex'),
+  gm = require('gm'),
+  fse = require('fs-extra'),
   Promise = require('bluebird'),
   utils = require('../utils'),
   errors = require('../errors'),
@@ -35,6 +38,8 @@ module.exports = {
       if (req.query.category) {
         query.where('category_id', '=', parseInt(req.query.category));
       }
+
+      query.orderBy('id', 'DESC');
     });
 
     return model.fetchAll({
@@ -82,26 +87,31 @@ module.exports = {
    * @returns {*}
    */
   uploadFeaturedImage: function (context, req, res) {
-    console.log('Handling photo');
     if (!req.files.image) {
       throw new errors.MissingParamError(['image']);
     }
+
+    console.log(req.files);
 
     var gmi = gm(req.files.image.path);
     gmi.write = Promise.promisify(gmi.write);
     gmi.resize(640, 320);
 
+
+    var name = req.body.name || req.files.image.name;
+    var savename = utils.safeString(path.basename(name)) + path.extension(name);
+
     return gmi.write(req.files.image.path)
       .then(function () {
         // Move tmp file to final destination.
-        return fse.moveAsync(req.files.image.path, POST_IMG_DIR + '/' + req.files.image.name);
+        return fse.moveAsync(req.files.image.path, POST_IMG_DIR + '/' + savename);
       })
       .then(function () {
         // Delete temp file after moving to main location
         return fse.removeAsync(req.files.image.path);
       }).then(function () {
         return models.Post.update(req.params.post_id, {
-          image: req.files.image.name
+          image: savename
         });
       }).catch(function (error) {
         throw new errors.ApiError(error.message || error);
@@ -195,11 +205,7 @@ module.exports = {
       data.content_html = data.content;
     }
 
-    return models.Post.update(req.params.id, data);
-  },
-
-  uploadFeaturedImage: function (context, req, res) {
-    // TODO: implement
+    return models.Post.update(req.params.post_id, data);
   },
 
   /**
