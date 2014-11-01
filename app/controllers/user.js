@@ -81,9 +81,7 @@ module.exports = {
     });
 
     return models.User.findOne({
-      where: {
-        unique_id: req.query.unique_id
-      }
+      unique_id: req.query.unique_id
     }).tap(function (user) {
       if (!user.checkPassword(req.query.password)) {
         throw new errors.ApiError('Unable to authenticate user with provided credentials.');
