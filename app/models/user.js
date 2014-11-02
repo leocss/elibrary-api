@@ -40,7 +40,7 @@ var UserModel = base.Model.extend({
     },
 
     photo_url: function () {
-      return config.server.url() + '/files/user-photos/' + this.get('photo');
+      return this.get('photo') ? config.server.url() + '/files/user-photos/' + this.get('photo') : null;
     }
   },
 

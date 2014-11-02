@@ -43,6 +43,8 @@ module.exports = {
       if (req.query.offset && !req.query.stat) {
         qb.skip(parseInt(req.query.offset));
       }
+
+      qb.orderBy('id', 'DESC');
     }).fetchAll();
   },
 
