@@ -175,7 +175,7 @@ return Promise.resolve().then(function () {
       queue.push(knex.table('books').insert({
         title: casual.title,
         author: casual.name,
-        category_id: categories.book.indexOf(casual.random_element(categories.book)) + 1,
+        category_id: categories.books.indexOf(casual.random_element(categories.books)) + 1,
         edition: casual.random_element([1, 2, 3, 4, 5, 6]),
         overview: casual.text,
         has_soft_copy: casual.random_element([true, false]),
