@@ -23,7 +23,26 @@ module.exports = {
    */
   getPosts: function (context, req, res) {
     var model = new models.Post().query(function (qb) {
-      if (req.query.filter) {
+      if (req.query.stat) {
+        // ?stat=5_latest or ?stat=5_most_borrowed
+        var parts = req.query.stat.split('_').reverse(),
+          limit = parseInt(parts.pop()),
+          type = parts.reverse().join('_');
+
+        switch (type) {
+          case 'latest':
+            qb.orderBy('id', 'desc');
+            break;
+          case 'most_viewed':
+            qb.orderBy('views_count', 'desc');
+            break;
+          case 'most_liked':
+            qb.orderBy('likes_count', 'desc');
+            break;
+        }
+
+        qb.limit(limit);
+      } else if (req.query.filter) {
         qb.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
       }
 
