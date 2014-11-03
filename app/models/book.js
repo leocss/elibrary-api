@@ -51,7 +51,7 @@ var BookModel = base.Model.extend({
   },
 
   category: function () {
-    return this.belongsTo(require('./category').Category, 'category_id').where('object_type', '=', 'book');
+    return this.belongsTo(require('./category').Category, 'category_id').where('object_type', '=', 'books');
   },
 
   copies: function() {

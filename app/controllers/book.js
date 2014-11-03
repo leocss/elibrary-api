@@ -70,6 +70,15 @@ module.exports = {
         knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
       qb.select(
         knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
+
+      if (context.user) {
+        qb.select(
+          knex.raw('(' +
+          'SELECT COUNT(likes.id) FROM likes ' +
+          'WHERE object_type = "books" AND object_id = books.id AND user_id = "' + context.user.get('id') + '"' +
+          ') AS context_user_liked')
+        );
+      }
     });
 
     return model.fetchAll({
