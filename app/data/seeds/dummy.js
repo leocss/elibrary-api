@@ -22,7 +22,11 @@ knex = knex(knexfile.development);
 var queue = [];
 var etest_courses = [
   'Computer Science',
-  'Physics'
+  'Physics',
+    'Computer Engineering',
+    'IMT',
+    'Cyber Security'
+
 ];
 
 var categories = {
