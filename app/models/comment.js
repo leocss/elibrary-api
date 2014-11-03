@@ -11,7 +11,7 @@ var CommentModel = base.Model.extend({
   permitted: [
     'id',
     'user_id',
-    'object',
+    'object_type',
     'object_id',
     'created_at',
     'likes_count',

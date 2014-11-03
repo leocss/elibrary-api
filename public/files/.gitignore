@@ -1,0 +1,10 @@
+printjobs/*
+!printjobs/.gitkeep
+books/files/*
+!/files/.gitkeep
+books/images/*
+!books/images/.gitkeep
+user-photos/*
+!user-photos/.gitkeep
+posts/*
+!posts/.gitkeep

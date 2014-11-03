@@ -3,6 +3,7 @@
  */
 
 var bcrypt = require('bcryptjs'),
+  config = require('../config'),
   utils = require('../utils'),
   base = require('./base');
 
@@ -19,7 +20,12 @@ var UserModel = base.Model.extend({
     'password',
     'address',
     'gender',
+    'photo',
+    'email',
+    'phone',
     'type',
+    'fund',
+    'debt',
     'created_at',
     'updated_at'
   ],
@@ -31,6 +37,10 @@ var UserModel = base.Model.extend({
   virtuals: {
     full_name: function () {
       return [this.get('first_name'), this.get('last_name')].join(' ');
+    },
+
+    photo_url: function () {
+      return this.get('photo') ? config.server.url() + '/files/user-photos/' + this.get('photo') : null;
     }
   },
 
@@ -51,8 +61,12 @@ var UserModel = base.Model.extend({
     return this.hasMany(require('./print-job').PrintJobs, 'user_id');
   },
 
-  favourites: function () {
-    return this.hasMany(require('./user-favourite').Favourites, 'user_id');
+  favorites: function () {
+    return this.hasMany(require('./user-favorite').Favorites, 'user_id');
+  },
+
+  transactions: function () {
+    return this.hasMany(require('./transactions').Transactions, 'user_id');
   }
 }, {
   checkPassword: function (password) {

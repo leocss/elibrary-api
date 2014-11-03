@@ -7,32 +7,44 @@ var path = require('path'),
   hat = require('hat'),
   Promise = require('bluebird'),
   fse = Promise.promisifyAll(require('fs-extra')),
+  gm = require('gm'),
   errors = require('../errors'),
   models = require('../models');
 
-var PRINT_JOB_DIR = __dirname + '/../../public/files/printjobs';
+var USER_PHOTO_DIR = __dirname + '/../../public/files/user-photos';
+var PRINT_JOB_DIR = __dirname + '/../../public/files/print-jobs';
 
 module.exports = {
-  getUsers: function(context, req, res) {
-    return new models.User().query(function(qb) {
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  getUsers: function (context, req, res) {
+    return new models.User().query(function (qb) {
 
       if (req.query.filter) {
         if (req.query.filter != '*') {
-          query.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+          qb.where('first_name', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+          qb.orWhere('last_name', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
         }
 
         if (req.query.type && (['staff', 'student'].indexOf(req.query.type) != -1)) {
-          query.where('type', '=', req.query.type);
+          qb.where('type', '=', req.query.type);
         }
       }
 
       if (req.query.limit && !req.query.stat) {
-        query.limit(req.query.limit);
+        qb.limit(parseInt(req.query.limit));
       }
 
       if (req.query.offset && !req.query.stat) {
-        query.skip(req.query.offset);
+        qb.skip(parseInt(req.query.offset));
       }
+
+      qb.orderBy('id', 'DESC');
     }).fetchAll();
   },
 
@@ -45,20 +57,52 @@ module.exports = {
    * @param response
    */
   getUser: function (context, request, response) {
-    return models.User.findById(request.params.id)
-      .then(function (user) {
-        return user.toJSON();
-      });
+    var includes = context.parseIncludes(['printJobs', 'favorites', 'transactions']);
+    return models.User.findById(request.params.id, {
+      withRelated: includes
+    }).then(function (user) {
+      return user.toJSON();
+    });
   },
 
   /**
+   *
    * @param context
-   * @param request
+   * @param req
+   * @param res
+   * @returns {*}
    */
-  updateUser: function (context, request) {
-    return models.User.update(_.pick(request.body, [
+  checkUserExists: function (context, req, res) {
+    var required = ['unique_id', 'password'];
+    var includes = context.parseIncludes(['printJobs', 'favorites', 'transactions']);
+
+    required.forEach(function (item) {
+      if (!_.has(req.query, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+    });
+
+    return models.User.findOne({
+      unique_id: req.query.unique_id
+    }).tap(function (user) {
+      if (!user.checkPassword(req.query.password)) {
+        throw new errors.ApiError('Unable to authenticate user with provided credentials.');
+      }
+    }).then(function (user) {
+      return user;
+    });
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
+   * @returns {*}
+   */
+  updateUser: function (context, req) {
+    return models.User.update(req.params.user_id, _.pick(req.body, [
       'first_name', 'last_name', 'email', 'address',
-      'gender', 'matric_number', 'school', 'course'
+      'gender', 'phone', 'rfid', 'type', 'unique_id'
     ]));
   },
 
@@ -67,29 +111,67 @@ module.exports = {
    * @param request
    */
   createUser: function (context, req) {
-    var required = ['first_name', 'last_name', 'password', 'email', 'address', 'gender', 'unique_id', 'rfid', 'type'];
-    var data = _.pick(req.body, required);
+    var allowed = [
+      'first_name', 'last_name', 'password', 'phone', 'email',
+      'address', 'gender', 'unique_id', 'rfid', 'type'
+    ];
+    var data = _.pick(req.body, allowed);
 
-    required.forEach(function(item) {
-      if (!_.has(data, item)) {
-        throw new errors.MissingParamError([item]);
-      }
+    _.omit(allowed, ['phone', 'address']) // Required fields (just omit the optional ones)
+      .forEach(function (item) {
+        if (!_.has(data, item)) {
+          throw new errors.MissingParamError([item]);
+        }
 
-      if (_.isEmpty(data[item])) {
-        throw new errors.ApiError('"' + item + '" cannot be empty.');
-      }
-    });
+        if (_.isEmpty(data[item])) {
+          throw new errors.ApiError('"' + item + '" cannot be empty.');
+        }
+      });
 
     return models.User.create(data);
   },
 
   /**
+   * Uploads user photo
    *
    * @param context
    * @param request
    */
-  uploadPhoto: function (context, request) {
+  uploadPhoto: function (context, req) {
+    if (_.isUndefined(req.files.photo) || _.isNull(req.files.photo)) {
+      throw new errors.MissingParamError(['photo']);
+    }
 
+    // First resize uploaded image
+    var gmi = gm(req.files.photo.path);
+    gmi.write = Promise.promisify(gmi.write)
+    gmi.resize(480, 640);
+
+    return gmi.write(req.files.photo.path)
+      .then(function () {
+        // Move tmp file to final destination.
+        return fse.moveAsync(req.files.photo.path, [USER_PHOTO_DIR, req.files.photo.name].join('/'));
+      })
+      .then(function () {
+        // Delete temp file after moving to main location
+        return fse.removeAsync(req.files.photo.path);
+      }).then(function () {
+        return models.User.findById(req.params.user_id).tap(function (user) {
+          if (user.get('photo') != null) {
+            // Delete the old user photo file...
+            return fse.removeAsync([USER_PHOTO_DIR, user.get('photo')].join('/'));
+          }
+
+          return true;
+        });
+      }).then(function (user) {
+        // Update the user 'photo' field
+        return user.update({
+          photo: req.files.photo.name
+        });
+      }).catch(function (error) {
+        throw new errors.ApiError(error.message || error);
+      });
   },
 
   /**
@@ -97,8 +179,8 @@ module.exports = {
    * @param context
    * @param request
    */
-  deleteUser: function (context, request) {
-    return models.User.destroy({id: request.params.id});
+  deleteUser: function (context, req) {
+    return models.User.destroy({id: req.params.id});
   },
 
   /**
@@ -237,49 +319,53 @@ module.exports = {
    * @param request
    * @param response
    */
-  getFavourites: function (context, req, res) {
-    return models.UserFavourite.findMany({
+  getFavorites: function (context, req, res) {
+    var includes = context.parseIncludes(['object']);
+
+    return models.UserFavorite.findMany({
         where: {
           user_id: req.params.user_id
         }
       }, {
         require: false,
-        withRelated: ['book']
+        withRelated: includes
       }
     );
   },
 
   /**
-   * Removes an item from the user favourites.
+   * Removes an item from the user favorites.
    *
    * @param context
    * @param req
    * @param res
    * @returns {*}
    */
-  deleteFavourite: function (context, req, res) {
-    return models.UserFavourite.destroy({
+  deleteFavorite: function (context, req, res) {
+    return models.UserFavorite.destroy({
       user_id: req.params.user_id,
-      id: req.params.favourite_id
-    })
+      id: req.params.favorite_id
+    });
   },
 
   /**
-   * Adds an item to the user favourites.
+   * Adds an item to the user favorites.
    *
    * @param context
    * @param req
    * @param res
    */
-  addFavourite: function (context, req, res) {
-    var required = ['item_id', 'type', 'user_id'];
-    required.forEach(function(item) {
+  addFavorite: function (context, req, res) {
+    var required = ['object_id', 'object_type'];
+    required.forEach(function (item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
     });
 
-    return models.UserFavourite.create(_.pick(req.body, ['item_id', 'type', 'user_id']));
+    var data = _.pick(req.body, required);
+    data.user_id = req.params.user_id;
+    return models.UserFavorite.create(data);
   },
 
   /**
@@ -294,6 +380,127 @@ module.exports = {
       where: {
         user_id: req.params.user_id
       }
+    }, {require: false});
+  },
+
+  /**
+   * Logs a transaction made by a user
+   *
+   * @param context
+   * @param req
+   * @returns {*}
+   */
+  logTransaction: function (context, req) {
+    var data = {};
+    var required = ['transaction_id', 'type', 'description', 'amount', 'status', 'message'];
+    required.forEach(function (item) {
+      if (!_.has(req.body, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+
+      data[item] = req.body[item];
+    });
+
+    data.user_id = req.params.user_id;
+
+    return models.Transaction.create(data);
+  },
+
+  /**
+   * Gets all user billing transactions
+   *
+   * @param context
+   * @param req
+   */
+  getTransactions: function (context, req) {
+    return models.Transaction.findMany({
+      where: {
+        user_id: req.params.user_id
+      }
+    });
+  },
+
+  /**
+   * Endpoint to fund a user account
+   *
+   * @param context
+   * @param req
+   */
+  fundAccount: function (context, req) {
+    if (req.body.amount == undefined) {
+      throw new errors.MissingParamError(['amount']);
+    }
+
+    models.User.findById(req.params.user_id).then(function (user) {
+      return user.update({
+        fund: parseInt(user.get('fund')) + parseInt(req.body.amount)
+      });
+    });
+  },
+
+  /**
+   * Adds some amount to user debt
+   *
+   * @param context
+   * @param req
+   */
+  incureDept: function (context, req) {
+    if (req.body.type == undefined) {
+      throw new errors.MissingParamError(['type']);
+    }
+
+    var charges = 0;
+    switch (req.body.type) {
+      case 'sms':
+        charges = 5; // ie 5.0 NGN
+        break;
+    }
+
+    models.User.findById(req.params.user_id).then(function (user) {
+      return user.update({
+        debt: parseInt(user.get('debt')) + charges
+      });
+    });
+  },
+
+  /**
+   * Endpoint to remove from user dept...
+   * Note: only use this endpoint if the debt is to be
+   * resolved using the users account funds...
+   *
+   * @param context
+   * @param req
+   */
+  resolveDept: function (context, req) {
+    if (req.body.amount == undefined) {
+      throw new errors.MissingParamError(['amount']);
+    }
+
+    var amount = parseInt(req.body.amount);
+    models.User.findById(req.params.user_id).then(function (user) {
+
+      if (parseInt(user.get('fund')) < amount) {
+        throw new errors.ApiError('The amount specified exceeds the users funds.');
+      }
+
+      return user.update({
+        debt: (parseInt(user.get('debt')) - amount),
+        fund: (parseInt(user.get('fund')) - amount)
+      });
+    });
+  },
+
+  /**
+   * Gets all user etest sessions
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
+  getEtestSessions: function (context, req, res) {
+    return models.EtestSession.findMany({
+      where: {user_id: req.params.user_id}
     }, {require: false});
   }
 };

@@ -1,13 +1,3 @@
+.*/
 node_modules/
-.idea/
-app/storage/tmp/
-!app/storage/tmp/.gitkeep
-app/storage/logs/
-!app/storage/logs/.gitkeep
-public/files/printjobs
-!public/files/printjobs/.gitkeep
-public/files/books/files/
-!public/files/books/files/.gitkeep
-public/files/books/images/
-!public/files/books/images/.gitkeep
 app/config/env-dev.js

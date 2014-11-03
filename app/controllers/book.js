@@ -2,11 +2,16 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 var _ = require('lodash'),
+  moment = require('moment'),
   Promise = require('bluebird'),
   knex = require('knex'),
   fse = Promise.promisifyAll(require('fs-extra')),
+  gm = require('gm'),
+  bookshelf = require('../bootstrap/database').bookshelf,
   errors = require('../errors'),
   models = require('../models');
+
+var knex = bookshelf.knex;
 
 var BOOK_IMG_DIR = __dirname + '/../../public/files/books/images';
 var BOOK_FILE_DIR = __dirname + '/../../public/files/books/files'
@@ -62,9 +67,9 @@ module.exports = {
       }
 
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = books.id) AS likes_count'));
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = books.id) AS views_count'));
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
     });
 
     return model.fetchAll({
@@ -88,9 +93,9 @@ module.exports = {
       withRelated: includes
     }, function (qb) {
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS likes_count'));
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = "' + req.params.book_id + '") AS likes_count'));
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = "' + req.params.book_id + '") AS views_count'));
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = "' + req.params.book_id + '") AS views_count'));
     });
   },
 
@@ -110,6 +115,11 @@ module.exports = {
       if (includes.indexOf('books') != -1) {
         result.forEach(function (category) {
           promises.push(category.related('books').query(function (qb) {
+            qb.select('*');
+            qb.select(
+              knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
+            qb.select(
+              knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
             qb.limit(parseInt(req.query.books_limit || 5));
           }).fetch());
         });
@@ -136,9 +146,9 @@ module.exports = {
       qb.orderByRaw('rand()');
       qb.limit(1);
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM likes WHERE object = "book" AND object_id = books.id) AS likes_count'));
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
       qb.select(
-        knex.raw('(SELECT COUNT(id) FROM views WHERE object = "book" AND object_id = books.id) AS views_count'));
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
     }).fetch({withRelated: includes});
   },
 
@@ -181,16 +191,25 @@ module.exports = {
       throw new errors.MissingParamError(['image']);
     }
 
-    return fse.moveAsync(req.files.image.path, BOOK_IMG_DIR + '/' + req.files.image.name).then(function () {
-      // Delete temp file after moving to main location
-      return fse.removeAsync(req.files.image.path);
-    }).then(function () {
-      return models.Book.update(req.params.book_id, {
-        preview_image: req.files.image.name
+    var gmi = gm(req.files.image.path);
+    gmi.write = Promise.promisify(gmi.write);
+    gmi.resize(240, 320);
+
+    return gmi.write(req.files.image.path)
+      .then(function () {
+        // Move tmp file to final destination.
+        return fse.moveAsync(req.files.image.path, BOOK_IMG_DIR + '/' + req.files.image.name);
+      })
+      .then(function () {
+        // Delete temp file after moving to main location
+        return fse.removeAsync(req.files.image.path);
+      }).then(function () {
+        return models.Book.update(req.params.book_id, {
+          preview_image: req.files.image.name
+        });
+      }).catch(function (error) {
+        throw new errors.ApiError(error.message || error);
       });
-    }).catch(function (error) {
-      throw new errors.ApiError(error.message || error);
-    });
   },
 
   /**
@@ -258,15 +277,83 @@ module.exports = {
     });
   },
 
+  /**
+   * Endpoint for reserving books.
+   *
+   * POST /books/43/reserve
+   * {"duration": 30}
+   *
+   * @param context
+   * @param req
+   */
+  reserveBook: function (context, req) {
+    if (context.user === null) {
+      // Ensure client access token cannot access this endpoint
+      throw new errors.ApiError('Only access token gotten from a user can be used to access this endpoint.');
+    }
+
+    // Duration in 'days'. if none is specified to the api...
+    // The api uses the default => 7 days (1 week)
+    var duration = req.body.duration || 7;
+    var book_id = req.params.book_id;
+
+    return models.Book.findById(book_id, {withRelated: ['copies']})
+      // Ensure that this user has not already reserved this book
+      .tap(function(book) {
+        return models.BookReserve.findOne({
+          user_id: context.user.get('id'),
+          book_id: book_id
+        }).then(function(reserve) {
+          if (reserve) {
+            throw new errors.ApiError('This user has already reserved this book.');
+          }
+        });
+      })
+      // Check the total hard copies of the book are available by
+      // also filtering the already reserved ones out.
+      .tap(function (book) {
+        return knex('books_copies').select(knex.raw('COUNT(books_copies.id) AS total_available')).where(function () {
+          this.whereRaw('books_copies.id NOT IN (SELECT books_reserves.id FROM books_reserves)');
+        }).first().then(function (row) {
+          if (row.total_available == 0) {
+            throw new errors.ApiError('There are no more hard copies of this books available at the moment. Check back later.');
+          }
+        });
+      })
+      // All seems well.
+      // We create the book reserve and return the result.
+      .then(function(book) {
+        return models.BookReserve.create({
+          book_id: book_id,
+          user_id: context.user.get('id'),
+          expires_at: moment().add(duration, 'days')
+        })
+      });
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   getBookLikes: function (context, req, res) {
     return models.Like.findMany({
       where: {
-        object: 'book',
+        object_type: 'books',
         object_id: req.params.id
       }
     }, {require: false});
   },
 
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   addBookUserLike: function (context, req, res) {
     if (context.user === null) {
       // Ensure client access token cannot access this endpoint
@@ -275,7 +362,7 @@ module.exports = {
 
     var data = {};
     data.user_id = context.user.get('id');
-    data.object = 'book';
+    data.object_type = 'books';
     data.object_id = parseInt(req.params.book_id);
 
     // Try to retrieve the liked data, the orm 
@@ -306,7 +393,7 @@ module.exports = {
     return models.Like.destroy({
       user_id: context.user.get('id'),
       object_id: req.params.book_id,
-      object: 'book'
+      object_type: 'books'
     }).return({success: true});
   },
 
@@ -321,12 +408,19 @@ module.exports = {
   getBookViews: function (context, req, res) {
     return models.View.findMany({
       where: {
-        object: 'book',
+        object_type: 'books',
         object_id: req.params.book_id
       }
     }, {require: false});
   },
 
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   addBookUserView: function (context, req, res) {
     if (context.user === null) {
       // Ensure client access token cannot access this endpoint
@@ -335,7 +429,7 @@ module.exports = {
 
     var data = {};
     data.user_id = context.user.get('id');
-    data.object = 'book';
+    data.object_type = 'books';
     data.object_id = parseInt(req.params.book_id);
 
     return models.View.findOne({

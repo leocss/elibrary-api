@@ -14,13 +14,19 @@ var knex = require('knex'),
   Promise = require('bluebird'),
   moment = require('moment'),
   hat = require('hat'),
+  utils = require('../../utils'),
   knexfile = require('../../../knexfile');
 
 knex = knex(knexfile.development);
 
 var queue = [];
+var etest_courses = [
+  'Computer Science',
+  'Physics'
+];
+
 var categories = {
-  book: [
+  books: [
     'Mathematics',
     'Signals',
     'Computer Science',
@@ -73,19 +79,19 @@ return Promise.resolve().then(function () {
   return knex.raw('SET @@global.FOREIGN_KEY_CHECKS=0;')
 }).then(function () {
   return Promise.all([
-      knex.table('users').truncate(),
-      knex.table('api_sessions').truncate(),
-      knex.table('api_clients').truncate(),
-      knex.table('books').truncate(),
-      knex.table('books_issues').truncate(),
-      knex.table('print_documents').truncate(),
-      knex.table('print_jobs').truncate(),
-      knex.table('categories').truncate(),
-      knex.table('posts').truncate(),
-      knex.table('likes').truncate(),
-      knex.table('views').truncate(),
-      knex.table('comments').truncate(),
-    ]).then(function () {
+    knex.table('users').truncate(),
+    knex.table('api_sessions').truncate(),
+    knex.table('api_clients').truncate(),
+    knex.table('books').truncate(),
+    knex.table('books_issues').truncate(),
+    knex.table('print_documents').truncate(),
+    knex.table('print_jobs').truncate(),
+    knex.table('categories').truncate(),
+    knex.table('posts').truncate(),
+    knex.table('likes').truncate(),
+    knex.table('views').truncate(),
+    knex.table('comments').truncate(),
+  ]).then(function () {
     return true;
   });
 }).then(function () {
@@ -118,6 +124,8 @@ return Promise.resolve().then(function () {
         address: casual.address,
         gender: i == 0 ? 'M' : casual.random_element(['M', 'F']),
         type: type,
+        fund: utils.rand(0, 900),
+        debt: utils.rand(0, 5000),
         created_at: new Date(),
         updated_at: new Date()
       }));
@@ -143,7 +151,7 @@ return Promise.resolve().then(function () {
           title = categories[object][key];
           queue.push(knex.table('categories').insert({
             title: title,
-            object: object,
+            object_type: object,
             created_at: new Date(),
             updated_at: new Date()
           }));
@@ -167,7 +175,7 @@ return Promise.resolve().then(function () {
       queue.push(knex.table('books').insert({
         title: casual.title,
         author: casual.name,
-        category_id: categories.book.indexOf(casual.random_element(categories.book)) + 1,
+        category_id: categories.books.indexOf(casual.random_element(categories.books)) + 1,
         edition: casual.random_element([1, 2, 3, 4, 5, 6]),
         overview: casual.text,
         has_soft_copy: casual.random_element([true, false]),
@@ -208,7 +216,7 @@ return Promise.resolve().then(function () {
 
     return knex.table('categories')
       .select('*')
-      .where('object', '=', 'post')
+      .where('object_type', '=', 'post')
       .then(function (categories) {
         for (var i = 0; i < 20; i++) {
           title = casual.title;
@@ -230,6 +238,25 @@ return Promise.resolve().then(function () {
       }).then(function () {
         console.log('Done.');
       });
+  })
+  .then(function () {
+    console.log('Seeding "etest_courses" table');
+    queue = [];
+
+    etest_courses.forEach(function (course) {
+      queue.push(knex.table('etest_courses').insert({
+        name: course,
+        description: casual.text,
+        created_at: new Date(),
+        updated_at: new Date()
+      }));
+    });
+
+
+    return Promise.all(queue).then(function () {
+      console.log('Done.');
+      return true;
+    });
   })
   .then(function () {
     process.exit();

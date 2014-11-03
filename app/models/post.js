@@ -2,7 +2,8 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var base = require('./base');
+var config = require('../config'),
+  base = require('./base');
 
 var PostModel = base.Model.extend({
   tableName: 'posts',
@@ -26,8 +27,14 @@ var PostModel = base.Model.extend({
     'updated_at'
   ],
 
+  virtuals: {
+    image_url: function() {
+      return this.get('image') != null ? config.server.url() + '/files/posts/' + this.get('image') : null;
+    }
+  },
+
   category: function() {
-    return this.belongsTo(require('./category').Category, 'category_id').query({where: {object: 'post'}});
+    return this.belongsTo(require('./category').Category, 'category_id').query({where: {object_type: 'posts'}});
   },
 
   author: function() {
@@ -35,15 +42,15 @@ var PostModel = base.Model.extend({
   },
 
   comments: function() {
-    return this.hasMany(require('./comment').Comments, 'object_id').query({where: {object: 'post'}});
+    return this.hasMany(require('./comment').Comments, 'object_id').query({where: {object_type: 'posts'}});
   },
 
   likes: function() {
-    return this.hasMany(require('./like').Like, 'object_id').query({where: {object: 'post'}});
+    return this.hasMany(require('./like').Like, 'object_id').query({where: {object_type: 'posts'}});
   },
 
   views: function() {
-    return this.hasMany(require('./view').View, 'object_id').query({where: {object: 'post'}});
+    return this.hasMany(require('./view').View, 'object_id').query({where: {object_type: 'posts'}});
   }
 });
 
