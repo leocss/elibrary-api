@@ -129,6 +129,16 @@ module.exports = {
               knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
             qb.select(
               knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
+
+            if (context.user) {
+              qb.select(
+                knex.raw('(' +
+                'SELECT COUNT(likes.id) FROM likes ' +
+                'WHERE object_type = "books" AND object_id = books.id AND user_id = "' + context.user.get('id') + '"' +
+                ') AS context_user_liked')
+              );
+            }
+
             qb.limit(parseInt(req.query.books_limit || 5));
           }).fetch());
         });
@@ -308,11 +318,11 @@ module.exports = {
 
     return models.Book.findById(book_id, {withRelated: ['copies']})
       // Ensure that this user has not already reserved this book
-      .tap(function(book) {
+      .tap(function (book) {
         return models.BookReserve.findOne({
           user_id: context.user.get('id'),
           book_id: book_id
-        }).then(function(reserve) {
+        }).then(function (reserve) {
           if (reserve) {
             throw new errors.ApiError('This user has already reserved this book.');
           }
@@ -331,7 +341,7 @@ module.exports = {
       })
       // All seems well.
       // We create the book reserve and return the result.
-      .then(function(book) {
+      .then(function (book) {
         return models.BookReserve.create({
           book_id: book_id,
           user_id: context.user.get('id'),
