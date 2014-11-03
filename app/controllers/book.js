@@ -78,6 +78,13 @@ module.exports = {
           'WHERE object_type = "books" AND object_id = books.id AND user_id = "' + context.user.get('id') + '"' +
           ') AS context_user_liked')
         );
+
+        qb.select(
+          knex.raw('(' +
+          'SELECT COUNT(views.id) FROM views ' +
+          'WHERE object_type = "books" AND object_id = views.id AND user_id = "' + context.user.get('id') + '"' +
+          ') AS context_user_viewed')
+        );
       }
     });
 
@@ -105,6 +112,22 @@ module.exports = {
         knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = "' + req.params.book_id + '") AS likes_count'));
       qb.select(
         knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = "' + req.params.book_id + '") AS views_count'));
+
+      if (context.user) {
+        qb.select(
+          knex.raw('(' +
+          'SELECT COUNT(likes.id) FROM likes ' +
+          'WHERE object_type = "books" AND object_id = "' + req.params.book_id + '" AND user_id = "' + context.user.get('id') + '"' +
+          ') AS context_user_liked')
+        );
+
+        qb.select(
+          knex.raw('(' +
+          'SELECT COUNT(views.id) FROM views ' +
+          'WHERE object_type = "books" AND object_id = "' + req.params.book_iid + '" AND user_id = "' + context.user.get('id') + '"' +
+          ') AS context_user_viewed')
+        );
+      }
     });
   },
 
