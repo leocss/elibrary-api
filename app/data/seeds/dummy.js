@@ -10,6 +10,7 @@
 var knex = require('knex'),
   crypto = require('crypto'),
   bcrypt = require('bcryptjs'),
+  _ = require('lodash'),
   casual = require('casual'),
   Promise = require('bluebird'),
   moment = require('moment'),
@@ -22,12 +23,40 @@ knex = knex(knexfile.development);
 var queue = [];
 
 var etest_courses = [
-  'Computer Science',
-  'Physics',
-    'Computer Engineering',
-    'IMT',
-    'Cyber Security'
-
+  {
+    name: 'Computer Science',
+    questions: [
+      {
+        question: 'What is a computer?',
+        type: 'multiple_choice',
+        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+        answer: 2
+      },
+      {
+        question: 'Question Two?',
+        type: 'multiple_choice',
+        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+        answer: 1
+      },
+      {
+        question: 'What is a computer?',
+        type: 'true_or_false',
+        options: ['Yes', 'No'],
+        answer: 2
+      }
+    ]
+  },
+  {
+    name: 'Physics',
+    questions: [
+      {
+        question: 'Do you like physics?',
+        type: 'true_or_false',
+        options: ['Yes', 'No'],
+        answer: 2
+      }
+    ]
+  }
 ];
 
 var categories = {
@@ -85,6 +114,9 @@ return Promise.resolve().then(function () {
 }).then(function () {
   return Promise.all([
     knex.table('users').truncate(),
+    knex.table('etest_courses').truncate(),
+    knex.table('etest_questions').truncate(),
+    knex.table('etest_sessions').truncate(),
     knex.table('api_sessions').truncate(),
     knex.table('api_clients').truncate(),
     knex.table('books').truncate(),
@@ -245,20 +277,38 @@ return Promise.resolve().then(function () {
       });
   })
   .then(function () {
-    console.log('Seeding "etest_courses" table');
+    console.log('Seeding "etest_courses" and "etest_questions" table');
     queue = [];
 
     etest_courses.forEach(function (course) {
       queue.push(knex.table('etest_courses').insert({
-        name: course,
+        name: course.name,
         description: casual.text,
         created_at: new Date(),
         updated_at: new Date()
       }));
     });
 
+    return Promise.all(queue).then(function (results) {
+      queue = [];
+      results.forEach(function (insertId) {
+        var course = etest_courses[insertId[0] - 1];
 
-    return Promise.all(queue).then(function () {
+        _.forEach(course.questions, function (question) {
+          queue.push(knex.table('etest_questions').insert({
+            course_id: insertId[0],
+            question: question.question,
+            type: question.type,
+            options: JSON.stringify(question.options),
+            answer: question.answer,
+            created_at: new Date(),
+            updated_at: new Date()
+          }));
+        });
+      });
+
+      return Promise.all(queue);
+    }).then(function () {
       console.log('Done.');
       return true;
     });

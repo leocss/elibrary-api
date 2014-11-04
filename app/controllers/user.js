@@ -417,7 +417,7 @@ module.exports = {
       where: {
         user_id: req.params.user_id
       }
-    });
+    }, {require: false});
   },
 
   /**

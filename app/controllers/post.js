@@ -22,24 +22,66 @@ module.exports = {
    * @param res
    */
   getPosts: function (context, req, res) {
-    var model = new models.Post().query(function (query) {
-      if (req.query.filter) {
-        query.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
+    var model = new models.Post().query(function (qb) {
+      if (req.query.stat) {
+        // ?stat=5_latest or ?stat=5_most_borrowed
+        var parts = req.query.stat.split('_').reverse(),
+          limit = parseInt(parts.pop()),
+          type = parts.reverse().join('_');
+
+        switch (type) {
+          case 'latest':
+            qb.orderBy('id', 'desc');
+            break;
+          case 'most_viewed':
+            qb.orderBy('views_count', 'desc');
+            break;
+          case 'most_liked':
+            qb.orderBy('likes_count', 'desc');
+            break;
+        }
+
+        qb.limit(limit);
+      } else if (req.query.filter) {
+        qb.where('title', 'LIKE', '%' + req.query.filter.replace(' ', '%').replace('+', '%') + '%');
       }
 
       if (req.query.limit && !req.query.stat) {
-        query.limit(parseInt(req.query.limit));
+        qb.limit(parseInt(req.query.limit));
       }
 
       if (req.query.offset && !req.query.stat) {
-        query.skip(parseInt(req.query.offset));
+        qb.skip(parseInt(req.query.offset));
       }
 
       if (req.query.category) {
-        query.where('category_id', '=', parseInt(req.query.category));
+        qb.where('category_id', '=', parseInt(req.query.category));
       }
 
-      query.orderBy('id', 'DESC');
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "posts" AND object_id = posts.id) AS likes_count'));
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "posts" AND object_id = posts.id) AS views_count'));
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM comments WHERE object_type = "posts" AND object_id = posts.id) AS comments_count'));
+
+      if (context.user) {
+        qb.select(
+          knex.raw('(' +
+          'SELECT COUNT(likes.id) FROM likes ' +
+          'WHERE object_type = "posts" AND object_id = posts.id AND user_id = "' + context.user.get('id') + '"' +
+          ') AS context_user_liked')
+        );
+
+        qb.select(
+          knex.raw('(' +
+          'SELECT COUNT(views.id) FROM views ' +
+          'WHERE object_type = "posts" AND object_id = views.id AND user_id = "' + context.user.get('id') + '"' +
+          ') AS context_user_viewed')
+        );
+      }
+
+      qb.orderBy('id', 'DESC');
     });
 
     return model.fetchAll({
@@ -75,6 +117,13 @@ module.exports = {
           'WHERE object_type = "posts" AND object_id = "' + req.params.id + '" AND user_id = "' + context.user.get('id') + '"' +
           ') AS context_user_liked')
         );
+
+        qb.select(
+          knex.raw('(' +
+          'SELECT COUNT(views.id) FROM views ' +
+          'WHERE object_type = "posts" AND object_id = "' + req.params.id + '" AND user_id = "' + context.user.get('id') + '"' +
+          ') AS context_user_viewed')
+        );
       }
     });
   },
@@ -90,8 +139,6 @@ module.exports = {
     if (!req.files.image) {
       throw new errors.MissingParamError(['image']);
     }
-
-    console.log(req.files);
 
     var gmi = gm(req.files.image.path);
     gmi.write = Promise.promisify(gmi.write);
