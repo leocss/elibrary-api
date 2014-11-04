@@ -86,8 +86,10 @@ var BaseModel = bookshelf.Model.extend({
     });
   },
 
-  updateBy: function(where, attributes, options) {
-
+  updateWhere: function(where, attributes, options) {
+    return this.findOne(where, options).then(function(model) {
+      return model.save(attributes);
+    });
   },
 
   /**

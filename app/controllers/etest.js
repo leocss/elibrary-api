@@ -9,6 +9,22 @@ var _ = require('lodash'),
 
 module.exports = {
   /**
+   *
+   * @param context
+   * @param req
+   */
+  createCourse: function (context, req) {
+    var required = ['name', 'description', 'time_length'];
+    required.forEach(function (item) {
+      if (!_.has(req.body, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+    });
+
+    return models.EtestCourse.create(_.pick(req.body, required));
+  },
+
+  /**
    * Gets all available courses
    *
    * @param context
@@ -39,12 +55,37 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  getCourseQuestions: function (context, req) {
+  getQuestions: function (context, req) {
     return models.EtestQuestion.findMany({
       where: {
         course_id: req.params.course_id
       }
     });
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
+   */
+  createQuestion: function (context, req) {
+    var required = ['question', 'type', 'options', 'answer'];
+    var data = {};
+    required.forEach(function (item) {
+      if (!_.has(req.body, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+
+      if (item == 'options') {
+        data[item] = JSON.stringify(req.body[item]);
+      } else {
+        data[item] = req.body[item];
+      }
+    });
+
+    data.course_id = req.params.course_id;
+
+    return models.EtestQuestion.create(data);
   },
 
   /**
@@ -113,7 +154,7 @@ module.exports = {
   submitSessionResult: function (context, req) {
     var required = ['answers'];
 
-    req.body.answers.forEach(function(answer, index) {
+    req.body.answers.forEach(function (answer, index) {
       req.body.answers[index]['id'] = parseInt(answer.id);
     });
 
@@ -123,18 +164,37 @@ module.exports = {
       var promises = [], selected_answer,
         questions = session.related('questions').models;
 
-      questions.forEach(function(question) {
+      questions.forEach(function (question) {
         selected_answer = _.find(req.body.answers, {'id': question.get('id')})['answer'];
 
-        promises.push(models.EtestSessionQuestion.update({
+        promises.push(models.EtestSession.update(session.get('id'), {
+          status: 'completed'
+        }));
+
+        promises.push(models.EtestSessionQuestion.updateWhere({
           session_id: session.get('id'),
-          question_id: question.get('id'),
+          question_id: question.get('id')
+        }, {
           selected_answer: selected_answer,
-          correctly_answered: selected_answer == question.get('answer')
+          correctly_answered: selected_answer === question.get('answer')
         }));
       });
 
       return Promise.all(promises);
-    }).tjh;
+    }).then(function (results) {
+      return {success: true};
+    });
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
+   * @returns {*}
+   */
+  deleteSession: function (context, req) {
+    return models.EtestSession.findById(req.params.session_id).then(function () {
+      return {success: true};
+    });
   }
 };
