@@ -17,7 +17,7 @@ module.exports = function (app) {
   app.get('/users/:user_id/favorites', app.apiHandler(user.getFavorites));
   app.delete('/users/:user_id/favorites/:favorite_id', app.apiHandler(user.deleteFavorite));
   app.post('/users/:user_id/favorites', app.apiHandler(user.addFavorite));
-  app.get('/users/:user_id/favorite-books', app.apiHandler(user.getFavoriteBooks));
+  app.get('/users/:user_id/favorites', app.apiHandler(user.getFavorites));
 
   // Print Jobs
   app.get('/users/:user_id/print-jobs/:job_id/documents', app.apiHandler(user.getPrintJobDocuments));
@@ -27,6 +27,9 @@ module.exports = function (app) {
   app.get('/users/:user_id/print-jobs/:job_id', app.apiHandler(user.getPrintJob));
   app.post('/users/:user_id/print-jobs', app.apiHandler(user.createPrintJob));
   app.delete('/users/:user_id/print-jobs/:jobId', app.apiHandler(user.deletePrintJob));
+
+  // Books
+  app.get('/users/:user_id/reserved-books', app.apiHandler(user.getReservedBooks));
 
   // Likes
   app.get('/users/:user_id/likes', app.apiHandler(user.getLikes));

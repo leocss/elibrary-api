@@ -321,16 +321,26 @@ module.exports = {
    */
   getFavorites: function (context, req, res) {
     var includes = context.parseIncludes(['object']);
+    if (req.query.type) {
 
-    return models.UserFavorite.findMany({
-        where: {
-          user_id: req.params.user_id
-        }
-      }, {
-        require: false,
-        withRelated: includes
+    }
+    return models.UserFavorite.findMany(function (qb) {
+      qb.where('user_id', '=', req.params.user_id);
+      if (req.query.type) {
+        qb.where('object_type', req.query.type);
       }
-    );
+
+      if (req.query.limit) {
+        qb.limit(parseInt(req.query.limit));
+      }
+
+      if (req.query.offset) {
+        qb.offset(parseInt(req.query.offset));
+      }
+    }, {
+      require: false,
+      withRelated: includes
+    });
   },
 
   /**
@@ -404,6 +414,13 @@ module.exports = {
     data.user_id = req.params.user_id;
 
     return models.Transaction.create(data);
+  },
+
+  getReservedBooks: function (context, req) {
+    var includes = _.merge(context.parseIncludes(['reservedBooks.category']), ['reservedBooks']);
+    return models.User.findById(req.params.user_id, {withRelated: includes}).then(function (user) {
+      return user.related('reservedBooks');
+    });
   },
 
   /**

@@ -67,6 +67,10 @@ var UserModel = base.Model.extend({
 
   transactions: function () {
     return this.hasMany(require('./transactions').Transactions, 'user_id');
+  },
+
+  reservedBooks: function() {
+    return this.hasMany(require('./book-reserve').BookReserves, 'user_id');
   }
 }, {
   checkPassword: function (password) {
