@@ -345,7 +345,7 @@ module.exports = {
         return models.BookReserve.findOne({
           user_id: context.user.get('id'),
           book_id: book_id
-        }).then(function (reserve) {
+        }, {require: false}).then(function (reserve) {
           if (reserve) {
             throw new errors.ApiError('This user has already reserved this book.');
           }
