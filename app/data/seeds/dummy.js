@@ -5,6 +5,7 @@
  * used during development process only;
  *
  * @author Laju Morrison <morrelinko@gmail.com>
+ *     @author Elijah Abolaji <cloudnigeria@gmail.com>
  */
 
 var knex = require('knex'),
@@ -21,6 +22,7 @@ var knex = require('knex'),
 knex = knex(knexfile.development);
 
 var queue = [];
+
 var etest_courses = [
   {
     name: 'Computer Science',
@@ -28,34 +30,129 @@ var etest_courses = [
       {
         question: 'What is a computer?',
         type: 'multiple_choice',
-        options: ['Option A', 'Option B', 'Option C', 'Option D'],
-        answer: 2
-      },
-      {
-        question: 'Question Two?',
-        type: 'multiple_choice',
-        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+        options: ['Electronic device', 'Electric device', 'Mechanical device', 'Economical device'],
         answer: 1
       },
+
       {
-        question: 'What is a computer?',
+        question: 'Is computer an electronic device?',
         type: 'true_or_false',
         options: ['Yes', 'No'],
+        answer: 1
+      },
+
+      {
+        question: 'Nigeria became a republic in 1930',
+        type: 'true_or_false',
+        options: ['True', 'False'],
         answer: 2
-      }
+      },
+
+        {
+            question: 'What is the meaning of OSI',
+            type: 'multiple_choice',
+            options: ['Open systems interactivity', 'Open system interconnections','Open system interface','Open system Intelligence'],
+            answer: 2
+        },
+
+        {
+            question: 'FUT MINNA  is a conventional university',
+            type: 'true_or_false',
+            options: ['True', 'False'],
+            answer: 2
+        },
+        {
+            question: 'What is the meaning of WWW?',
+            type: 'multiple_choice',
+            options: ['world wide web', 'world war wide', 'web wide world', 'world web wide'],
+            answer: 1
+        },
+        {
+            question: 'Who is considered as father of computer?',
+            type: 'multiple_choice',
+            options: ['Aliko Dangote', 'Charlse Barbage', 'Bill Gates', 'Olusegun Obasonjo'],
+            answer: 2
+        },
     ]
   },
+    // Beginning of data for a new course
   {
-    name: 'Physics',
+    name: 'Mathematics',
     questions: [
       {
-        question: 'Do you like physics?',
+        question: 'Do you like Mathematics?',
         type: 'true_or_false',
         options: ['Yes', 'No'],
-        answer: 2
-      }
+        answer: 1
+      },
+
+        {
+            question: 'What is the value of X in the expression 2X + 2X = 4',
+            type: 'multiple_choice',
+            options: ['1', '7', '3', '2'],
+            answer: 1
+        },
+        {
+            question: 'What is the value of Y in the expression 4Y = 16',
+            type: 'multiple_choice',
+            options: ['5', '4', '3', '2'],
+            answer: 2
+        },
+        {
+            question: 'Which of the following is the correct value for Pi?',
+            type: 'multiple_choice',
+            options: ['3.4561', '3.1567', '3.142', '2.316'],
+            answer: 3
+        },
+        {
+            question: 'Mathematics is all about calculations?',
+            type: 'true_or_false',
+            options: ['False', 'True'],
+            answer: 2
+        }
     ]
-  }
+
+
+  },
+
+    {
+        name: 'General Knowledge',
+        questions: [
+            {
+                question: 'Your project supervisor is a Doctor?',
+                type: 'true_or_false',
+                options: ['Yes', 'No'],
+                answer: 1
+            },
+
+            {
+                question: 'What is the opposite of COME',
+                type: 'multiple_choice',
+                options: ['GO', 'STAY', 'WENT', 'DEPART'],
+                answer: 1
+            },
+            {
+                question: 'What is the color of the Nigerian flag',
+                type: 'multiple_choice',
+                options: ['Green White Green', 'Green and White', 'White and Green', 'White Green White'],
+                answer: 2
+            },
+            {
+                question: 'Who is the current president of Nigeria',
+                type: 'multiple_choice',
+                options: ['Barrack Obama', 'Mallam Nasir Elrufai', 'Dr Goodluck Jonathan', 'Alh Namadi Sambo'],
+                answer: 3
+            },
+            {
+                question: 'Madagascar is a country in Africa',
+                type: 'true_or_false',
+                options: ['False', 'True'],
+                answer: 2
+            }
+        ]
+
+
+    }
 ];
 
 var categories = {
