@@ -55,6 +55,7 @@ app.use(morgan({
   }
 }));
 
+require('./monitoring');
 require('../library/handler')(app);
 require('../routes')(app);
 

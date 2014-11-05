@@ -7,6 +7,7 @@ module.exports = {
   Book: require('./book').Book,
   BookCopy: require('./book-copy').BookCopy,
   BookReserve: require('./book-reserve').BookReserve,
+  BookIssue: require('./book-issue').BookIssue,
 
   // Posts / Article
   Post: require('./post').Post,

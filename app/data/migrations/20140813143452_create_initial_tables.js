@@ -156,7 +156,7 @@ exports.up = function (knex, Promise) {
       table.increments('id');
       table.string('name');
       table.string('description');
-      table.integer('time_length');
+      table.integer('time_length').defaultTo(20);
       table.timestamps();
     })
   /**
