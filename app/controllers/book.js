@@ -221,6 +221,40 @@ module.exports = {
   },
 
   /**
+   *
+   * @param context
+   * @param req
+   */
+  registerBookHardCopy: function (context, req) {
+    var required = ['rfid', 'isbn'];
+    var data = [];
+    required.forEach(function (item) {
+      if (!_.has(req.body, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+
+      data[item] = req.body[item];
+    });
+
+    data.book_id = req.params.book_id;
+
+    return models.BookCopy.create(data);
+  },
+
+  /**
+   *
+   * @param context
+   * @param req
+   * @returns {*}
+   */
+  getBookHardCopies: function (context, req) {
+    var includes = context.parseIncludes(['book']);
+    return models.BookCopy.findMany({
+      where: {book_id: req.params.book_id}
+    }, {withRelated: includes});
+  },
+
+  /**
    * Upload a book preview image
    *
    * @param context

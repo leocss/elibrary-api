@@ -11,8 +11,13 @@ var BookCopyModel = base.Model.extend({
   permitted: [
     'id',
     'book_id',
-    'rfid'
-  ]
+    'rfid',
+    'isbn'
+  ],
+
+  book: function () {
+    return this.belongsTo(require('./book').Book, 'book_id');
+  }
 });
 
 var BookCopyCollection = base.Collection.extend({

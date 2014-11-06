@@ -9,6 +9,7 @@ module.exports = function (app) {
   app.get('/books', app.apiHandler(book.getBooks));
   app.post('/books', app.apiHandler(book.addBook));
 
+  // Book Reserve
   app.get('/books/reserved', app.apiHandler(book.getReservedBooks));
 
   // Book Categories
@@ -23,6 +24,8 @@ module.exports = function (app) {
   app.post('/books/:book_id/book', app.apiHandler(book.uploadBookFile));
   app.delete('/books/:id', app.apiHandler(book.deleteBook));
   app.post('/books/:book_id/reserve', app.apiHandler(book.reserveBook));
+  app.post('/books/:book_id/copies', app.apiHandler(book.registerBookHardCopy));
+  app.get('/books/:book_id/copies', app.apiHandler(book.getBookHardCopies));
 
   // Book Likes
   app.get('/books/:book_id/likes', app.apiHandler(book.getBookLikes));
