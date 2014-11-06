@@ -92,7 +92,7 @@ exports.up = function (knex, Promise) {
       table.text('overview');
       table.string('file_name', 100);
       table.string('preview_image');
-      table.boolean('has_soft_copy').defaultTo(0);
+      table.string('isbn');
       // Total number of times book has been borrowed
       table.integer('borrow_count').defaultTo(0);
       // Holds the time the book was published (Month & Year)
@@ -118,6 +118,7 @@ exports.up = function (knex, Promise) {
       table.increments('id');
       table.integer('book_id').unsigned();
       table.string('rfid');
+      table.string('isbn');
     })
   /**
    * Create 'books_reserved' table

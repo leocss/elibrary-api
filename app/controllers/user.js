@@ -84,7 +84,11 @@ module.exports = {
 
     return models.User.findOne({
       unique_id: req.query.unique_id
-    }).tap(function (user) {
+    }, {require: false}).tap(function (user) {
+      if (!user) {
+        throw new errors.ObjectNotFoundError('User not found.');
+      }
+
       if (!user.checkPassword(req.query.password)) {
         throw new errors.ApiError('Unable to authenticate user with provided credentials.');
       }

@@ -225,6 +225,7 @@ return Promise.resolve().then(function () {
     knex.table('likes').truncate(),
     knex.table('views').truncate(),
     knex.table('comments').truncate(),
+    knex.table('transactions').truncate()
   ]).then(function () {
     return true;
   });
@@ -249,15 +250,15 @@ return Promise.resolve().then(function () {
       }
 
       queue.push(knex.table('users').insert({
-        unique_id: i == 0 ? '2009/1/323232CT' : uniqueId,
+        unique_id: i == 0 ? '2009/1/323232CT' : (i == 1 ? '12345678' : uniqueId),
         password: bcrypt.hashSync('123456', 8),
         rfid: hat(),
-        email: i == 0 ? 'johndoe@gmail.com' : casual.email.toLowerCase(),
-        first_name: i == 0 ? 'John' : casual.first_name,
-        last_name: i == 0 ? 'Doe' : casual.last_name,
+        email: i == 0 ? 'johndoe@gmail.com' : (i == 1 ? 'melissa@gmail.com' : casual.email.toLowerCase()),
+        first_name: (i == 0) ? 'John' : (i == 1 ? 'Melissa' : casual.first_name),
+        last_name: i == 0 ? 'Doe' : (i == 1 ? 'Joan' : casual.last_name),
         address: casual.address,
         gender: i == 0 ? 'M' : casual.random_element(['M', 'F']),
-        type: i == 2 ? 'admin' : type,
+        type: i == 1 ? 'admin' : type,
         fund: utils.rand(0, 900),
         debt: utils.rand(0, 5000),
         created_at: new Date(),
@@ -415,20 +416,20 @@ return Promise.resolve().then(function () {
       queue.push(knex.table('books_reserves').insert({
         user_id: 1,
         book_id: id,
-        expire_at: casual.random_element([moment().add(5, 'days'), new Date()]),
+        expire_at: casual.random_element([moment().add(5, 'days').format(), new Date()]),
         created_at: new Date()
       }));
     });
 
     // books_issues
     [3, 5, 7, 8].forEach(function (id) {
-      var borrowed_at = casual.random_element([moment(new Date()), moment.sub(4, 'days')]);
+      var borrowed_at = casual.random_element([moment(new Date()), moment().subtract(4, 'days')]);
       var return_due_at = borrowed_at.add(7, 'days');
       queue.push(knex.table('books_issues').insert({
         user_id: 1,
         book_id: id,
-        borrowed_at: borrowed_at,
-        return_due_at: return_due_at,
+        borrowed_at: borrowed_at.format(),
+        return_due_at: return_due_at.format(),
         returned_at: null
       }));
     })
