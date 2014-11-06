@@ -157,6 +157,7 @@ exports.up = function (knex, Promise) {
       table.string('name');
       table.string('description');
       table.integer('time_length').defaultTo(20);
+      table.string('image');
       table.timestamps();
     })
   /**
@@ -164,7 +165,8 @@ exports.up = function (knex, Promise) {
    */
     .createTable('etest_questions', function (table) {
       table.increments('id');
-      table.integer('course_id').unsigned();
+      table.integer('course_id').unsigned().references('id')
+        .inTable('etest_courses').onDelete('cascade');
       table.string('question');
       table.string('type');
       table.string('options');
@@ -177,7 +179,8 @@ exports.up = function (knex, Promise) {
     .createTable('etest_sessions', function (table) {
       table.increments('id');
       table.integer('user_id').unsigned();
-      table.integer('course_id').unsigned();
+      table.integer('course_id').unsigned().references('id')
+        .inTable('etest_courses').onDelete('cascade');
       table.enum('status', ['completed', 'in_progress']).defaultTo('in_progress');
       table.dateTime('created_at');
       table.dateTime('ended_at');
@@ -188,7 +191,7 @@ exports.up = function (knex, Promise) {
     .createTable('etest_sessions_questions', function (table) {
       table.integer('question_id');
       table.integer('session_id').unsinged().references('id')
-        .inTable('etest_sessions').onDelete('CASCADE');
+        .inTable('etest_sessions').onDelete('cascade');
       table.integer('selected_answer');
       table.boolean('correctly_answered').defaultTo(0);
     })

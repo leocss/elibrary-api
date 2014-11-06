@@ -25,6 +25,18 @@ module.exports = {
   },
 
   /**
+   *
+   * @param context
+   * @param req
+   * @returns {*|IDBRequest|void}
+   */
+  updateCourse: function (context, req) {
+    var required = ['name', 'description', 'time_length'];
+
+    return models.EtestCourse.update(req.params.course_id, _.pick(req.body, required));
+  },
+
+  /**
    * Gets all available courses
    *
    * @param context
@@ -43,7 +55,7 @@ module.exports = {
    * @returns {*}
    */
   getCourse: function (context, req) {
-    var includes = context.parseIncludes(['sessions']);
+    var includes = context.parseIncludes(['sessions', 'questions']);
     return models.EtestCourse.findById(req.params.course_id, {
       withRelated: includes
     });

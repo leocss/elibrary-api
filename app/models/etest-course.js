@@ -5,21 +5,23 @@ var base = require('./base');
 
 var EtestCourseModel = base.Model.extend({
   tableName: 'etest_courses',
-  hasTimestamps: ['created_at'],
+  hasTimestamps: true,
 
   permitted: [
     'id',
     'name',
     'description',
+    'time_length',
+    'image',
     'created_at',
     'updated_at'
   ],
 
-  sessions: function() {
+  sessions: function () {
     return this.hasMany(require('./etest-session').EtestSessions, 'course_id');
   },
 
-  questions: function() {
+  questions: function () {
     return this.hasMany(require('./etest-question').EtestQuestion, 'course_id');
   }
 });
