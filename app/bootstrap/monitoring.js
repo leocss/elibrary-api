@@ -8,6 +8,7 @@ var services = require('../services')
 
 setInterval(function () {
   // Find all expired borrowed books that have not yet being returned.
+  // And send appropriate reminders to a selected few :)
   models.BookIssue.findMany(function (qb) {
     qb.where('return_due_at', '<', moment().format('YYYY-MM-DD HH:mm:ss'));
     qb.where(function () {
@@ -29,4 +30,14 @@ setInterval(function () {
       user.update({debt: (parseInt(user.get('debt')) + 5)});
     });
   });
-}, 1000);
+
+
+  // TODO: find and delete all expired reserved books
+  models.BookReserve.findMany(function (qb) {
+    qb.where('expire_at', '<', moment().format('YYYY-MM-DD HH:mm:ss'));
+  }, {require: false}).then(function (reserves) {
+    reserves.models.forEach(function (reserve) {
+
+    });
+  });
+}, 5000);
