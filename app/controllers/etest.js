@@ -45,7 +45,19 @@ module.exports = {
    * @returns {*}
    */
   getCourses: function (context, req, res) {
-    return models.EtestCourse.all({require: false});
+    return models.EtestCourse.findMany(function (qb) {
+      if (req.query.order) {
+        switch (order) {
+          case 'latest':
+            qb.orderBy('id', 'DESC');
+            break;
+        }
+      }
+
+      if (req.query.limit) {
+        qb.limit(parseInt(req.query.limit));
+      }
+    }, {require: false});
   },
 
   /**
