@@ -30,7 +30,8 @@ exports.up = function (knex, Promise) {
    */
     .createTable('users_favorites', function (table) {
       table.increments('id');
-      table.integer('user_id').unsigned().index();
+      table.integer('user_id').unsigned().index()
+        .references('id').inTable('users').onDelete('cascade');
       table.string('object_type', 50).index();
       table.integer('object_id').unsigned().index();
       table.dateTime('created_at');
@@ -74,7 +75,8 @@ exports.up = function (knex, Promise) {
       table.increments('id');
       table.integer('client_id').unsigned()
         .references('id').inTable('api_clients').onDelete('CASCADE');
-      table.integer('user_id').unsigned().defaultTo(0);
+      table.integer('user_id').unsigned().defaultTo(0)
+        .references('id').inTable('users').onDelete('cascade');
       table.string('token').index();
       table.string('owner');
       table.string('life_time');
@@ -116,7 +118,8 @@ exports.up = function (knex, Promise) {
    */
     .createTable('books_copies', function (table) {
       table.increments('id');
-      table.integer('book_id').unsigned();
+      table.integer('book_id').unsigned()
+        .references('id').inTable('books').onDelete('cascade');
       table.string('rfid');
       table.string('isbn');
     })
@@ -125,8 +128,10 @@ exports.up = function (knex, Promise) {
    */
     .createTable('books_reserves', function (table) {
       table.increments('id');
-      table.integer('user_id').unsigned();
-      table.integer('book_id').unsigned();
+      table.integer('user_id').unsigned()
+        .references('id').inTable('users').onDelete('cascade');
+      table.integer('book_id').unsigned()
+        .references('id').inTable('books').onDelete('cascade');
       table.dateTime('expire_at');
       table.dateTime('created_at');
     })
@@ -151,7 +156,7 @@ exports.up = function (knex, Promise) {
    * Create 'etest_courses' table
    */
     .createTable('etest_courses', function (table) {
-      table.increments('id');
+      table.increments('id').unsigned();
       table.string('name');
       table.string('description');
       table.integer('time_length').defaultTo(20);
@@ -162,7 +167,7 @@ exports.up = function (knex, Promise) {
    * Create 'etest_questions' table
    */
     .createTable('etest_questions', function (table) {
-      table.increments('id');
+      table.increments('id').unsigned();
       table.integer('course_id').unsigned().references('id')
         .inTable('etest_courses').onDelete('cascade');
       table.string('question');
@@ -176,7 +181,8 @@ exports.up = function (knex, Promise) {
    */
     .createTable('etest_sessions', function (table) {
       table.increments('id');
-      table.integer('user_id').unsigned();
+      table.integer('user_id').unsigned()
+        .references('id').inTable('users').onDelete('cascade');
       table.integer('course_id').unsigned().references('id')
         .inTable('etest_courses').onDelete('cascade');
       table.enum('status', ['completed', 'in_progress']).defaultTo('in_progress');
@@ -187,9 +193,10 @@ exports.up = function (knex, Promise) {
    * Create 'etest_session_questions' table
    */
     .createTable('etest_sessions_questions', function (table) {
-      table.integer('question_id');
-      table.integer('session_id').unsigned().references('id')
-        .inTable('etest_sessions').onDelete('cascade');
+      table.integer('question_id').unsigned()
+        .references('id').inTable('etest_questions').onDelete('cascade');
+      table.integer('session_id').unsigned()
+        .references('id').inTable('etest_sessions').onDelete('cascade');
       table.integer('selected_answer');
       table.boolean('correctly_answered').defaultTo(0);
     })
@@ -231,7 +238,8 @@ exports.up = function (knex, Promise) {
     .createTable('transactions', function (table) {
       table.integer('id').unsigned().unique();
       table.string('transaction_id');
-      table.integer('user_id').unsigned();
+      table.integer('user_id').unsigned()
+        .references('id').inTable('users').onDelete('cascade');
       table.text('description');
       table.integer('amount');
       table.string('status', 50); // success | failed | aborted

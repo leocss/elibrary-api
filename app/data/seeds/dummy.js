@@ -439,7 +439,7 @@ return Promise.resolve().then(function () {
       return true;
     });
   })
-  .then(function () {
+  .then(function seed_transactions_table() {
     console.log('Seeding "transactions" table');
     queue = [];
 
@@ -447,7 +447,7 @@ return Promise.resolve().then(function () {
 
     for (var i = 0; i < 10; i++) {
       queue.push(knex.table('transactions').insert({
-        transaction_id: hat()(),
+        transaction_id: hat(),
         user_id: casual.random_element([1, 2]),
         description: 'Debt Payment',
         amount: casual.random_element([200, 500, 1500]),
