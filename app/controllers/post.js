@@ -22,6 +22,7 @@ module.exports = {
    * @param res
    */
   getPosts: function (context, req, res) {
+    var includes = context.parseIncludes(['category', 'author']);
     var model = new models.Post().query(function (qb) {
       if (req.query.stat) {
         // ?stat=5_latest or ?stat=5_most_borrowed
@@ -85,7 +86,7 @@ module.exports = {
     });
 
     return model.fetchAll({
-      withRelated: ['category']
+      withRelated: includes
     });
   },
 
