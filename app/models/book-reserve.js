@@ -16,7 +16,15 @@ var BookReserveModel = base.Model.extend({
     'book_id',
     'expire_at',
     'created_at'
-  ]
+  ],
+
+  user: function() {
+    return this.belongsTo(require('./user').User, 'user_id');
+  },
+
+  book: function() {
+    return this.belongsTo(require('./book').Book, 'book_id');
+  }
 });
 
 var BookReserveCollection = base.Collection.extend({

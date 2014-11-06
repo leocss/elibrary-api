@@ -320,6 +320,21 @@ module.exports = {
   },
 
   /**
+   *
+   * @param context
+   * @param req
+   * @returns {*}
+   */
+  getReservedBooks: function (context, req) {
+    var includes = context.parseIncludes(['book', 'user']);
+    return models.BookReserve.findMany(function (qb) {
+      if (req.query.limit) {
+        qb.limit(parseInt(req.query.limit));
+      }
+    }, {withRelated: includes, require: false});
+  },
+
+  /**
    * Endpoint for reserving books.
    *
    * POST /books/43/reserve

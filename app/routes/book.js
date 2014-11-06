@@ -9,6 +9,8 @@ module.exports = function (app) {
   app.get('/books', app.apiHandler(book.getBooks));
   app.post('/books', app.apiHandler(book.addBook));
 
+  app.get('/books/reserved', app.apiHandler(book.getReservedBooks));
+
   // Book Categories
   app.get('/books/categories', app.apiHandler(book.getCategories));
   app.get('/books/categories/:category_id', app.apiHandler(book.getCategory));
