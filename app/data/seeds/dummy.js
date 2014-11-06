@@ -311,10 +311,6 @@ return Promise.resolve().then(function () {
         category_id: categories.books.indexOf(casual.random_element(categories.books)) + 1,
         edition: casual.random_element([1, 2, 3, 4, 5, 6]),
         overview: casual.text,
-        has_soft_copy: casual.random_element([true, false]),
-        has_hard_copy: casual.random_element([true, false]),
-        hard_copies_count: casual.random_element([1, 3, 4, 5, 8]),
-        borrow_count: casual.random_element([0, 1, 2, 4, 6, 8, 10]),
         published_at: moment(casual.date('YYYY-MM')).toISOString(),
         created_at: new Date(),
         updated_at: new Date()
