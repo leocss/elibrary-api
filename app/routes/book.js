@@ -24,6 +24,9 @@ module.exports = function (app) {
   app.delete('/books/:id', app.apiHandler(book.deleteBook));
   app.post('/books/:book_id/reserve', app.apiHandler(book.reserveBook));
 
+  // Issue a book to a user.
+  app.post('/books/issue', app.apiHandler(book.issueBook));
+
   // Book Likes
   app.get('/books/:book_id/likes', app.apiHandler(book.getBookLikes));
   app.post('/books/:book_id/like', app.apiHandler(book.addBookUserLike));

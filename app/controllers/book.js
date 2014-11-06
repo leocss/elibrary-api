@@ -325,6 +325,21 @@ module.exports = {
     });
   },
 
+  issueBook: function () {
+    // Check if there is still book available to be borrowed
+    // Check if this book has been reserved by the user.
+    // Create the book issueing
+    // Delete from the reserve table if this book has been reserved by this user.
+    var required = ['book_id', 'user_id', 'duration'];
+    required.forEach(function (item) {
+      if (!_.has(req.body, item)) {
+        throw new errors.MissingParamError([item]);
+      }
+    });
+
+    // Check if there are books available to be borrowed
+  },
+
   /**
    *
    * @param context
