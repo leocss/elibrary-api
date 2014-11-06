@@ -20,9 +20,7 @@ var BookModel = base.Model.extend({
     'edition',
     'overview',
     'preview_image',
-    'has_hard_copy',
     'has_soft_copy',
-    'copies',
     'borrow_count',
     'view_count',
     'published_at', // Holds the time the book was published (Month & Year)

@@ -103,15 +103,19 @@ module.exports = {
    * @param res
    */
   getBook: function (context, req, res) {
-    var includes = context.parseIncludes(['category']);
+    var includes = context.parseIncludes(['category', 'copies']);
 
     return models.Book.findOne({id: req.params.book_id}, {
       withRelated: includes
     }, function (qb) {
+
       qb.select(
         knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = "' + req.params.book_id + '") AS likes_count'));
       qb.select(
         knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = "' + req.params.book_id + '") AS views_count'));
+
+      qb.select(
+        knex.raw('(SELECT COUNT(id) FROM books_copies WHERE book_id = "' + req.params.book_id + '") AS hard_copies_count'));
 
       if (context.user) {
         qb.select(

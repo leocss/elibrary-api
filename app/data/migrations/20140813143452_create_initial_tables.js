@@ -93,9 +93,6 @@ exports.up = function (knex, Promise) {
       table.string('file_name', 100);
       table.string('preview_image');
       table.boolean('has_soft_copy').defaultTo(0);
-      table.boolean('has_hard_copy').defaultTo(0);
-      // Total number of hard copies available
-      table.integer('hard_copies_count').defaultTo(0);
       // Total number of times book has been borrowed
       table.integer('borrow_count').defaultTo(0);
       // Holds the time the book was published (Month & Year)
