@@ -187,7 +187,7 @@ exports.up = function (knex, Promise) {
    */
     .createTable('etest_sessions_questions', function (table) {
       table.integer('question_id');
-      table.integer('session_id').unsinged().references('id')
+      table.integer('session_id').unsigned().references('id')
         .inTable('etest_sessions').onDelete('cascade');
       table.integer('selected_answer');
       table.boolean('correctly_answered').defaultTo(0);
