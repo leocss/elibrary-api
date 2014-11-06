@@ -45,7 +45,7 @@ module.exports = {
    * @returns {*}
    */
   getCourses: function (context, req, res) {
-    return models.EtestCourse.all();
+    return models.EtestCourse.all({require: false});
   },
 
   /**
@@ -72,7 +72,7 @@ module.exports = {
       where: {
         course_id: req.params.course_id
       }
-    });
+    }, {require: false});
   },
 
   /**

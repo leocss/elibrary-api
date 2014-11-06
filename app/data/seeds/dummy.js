@@ -48,34 +48,34 @@ var etest_courses = [
         answer: 2
       },
 
-        {
-            question: 'What is the meaning of OSI',
-            type: 'multiple_choice',
-            options: ['Open systems interactivity', 'Open system interconnections','Open system interface','Open system Intelligence'],
-            answer: 2
-        },
+      {
+        question: 'What is the meaning of OSI',
+        type: 'multiple_choice',
+        options: ['Open systems interactivity', 'Open system interconnections', 'Open system interface', 'Open system Intelligence'],
+        answer: 2
+      },
 
-        {
-            question: 'FUT MINNA  is a conventional university',
-            type: 'true_or_false',
-            options: ['True', 'False'],
-            answer: 2
-        },
-        {
-            question: 'What is the meaning of WWW?',
-            type: 'multiple_choice',
-            options: ['world wide web', 'world war wide', 'web wide world', 'world web wide'],
-            answer: 1
-        },
-        {
-            question: 'Who is considered as father of computer?',
-            type: 'multiple_choice',
-            options: ['Aliko Dangote', 'Charlse Barbage', 'Bill Gates', 'Olusegun Obasonjo'],
-            answer: 2
-        },
+      {
+        question: 'FUT MINNA  is a conventional university',
+        type: 'true_or_false',
+        options: ['True', 'False'],
+        answer: 2
+      },
+      {
+        question: 'What is the meaning of WWW?',
+        type: 'multiple_choice',
+        options: ['world wide web', 'world war wide', 'web wide world', 'world web wide'],
+        answer: 1
+      },
+      {
+        question: 'Who is considered as father of computer?',
+        type: 'multiple_choice',
+        options: ['Aliko Dangote', 'Charlse Barbage', 'Bill Gates', 'Olusegun Obasonjo'],
+        answer: 2
+      },
     ]
   },
-    // Beginning of data for a new course
+  // Beginning of data for a new course
   {
     name: 'Mathematics',
     questions: [
@@ -86,73 +86,73 @@ var etest_courses = [
         answer: 1
       },
 
-        {
-            question: 'What is the value of X in the expression 2X + 2X = 4',
-            type: 'multiple_choice',
-            options: ['1', '7', '3', '2'],
-            answer: 1
-        },
-        {
-            question: 'What is the value of Y in the expression 4Y = 16',
-            type: 'multiple_choice',
-            options: ['5', '4', '3', '2'],
-            answer: 2
-        },
-        {
-            question: 'Which of the following is the correct value for Pi?',
-            type: 'multiple_choice',
-            options: ['3.4561', '3.1567', '3.142', '2.316'],
-            answer: 3
-        },
-        {
-            question: 'Mathematics is all about calculations?',
-            type: 'true_or_false',
-            options: ['False', 'True'],
-            answer: 2
-        }
+      {
+        question: 'What is the value of X in the expression 2X + 2X = 4',
+        type: 'multiple_choice',
+        options: ['1', '7', '3', '2'],
+        answer: 1
+      },
+      {
+        question: 'What is the value of Y in the expression 4Y = 16',
+        type: 'multiple_choice',
+        options: ['5', '4', '3', '2'],
+        answer: 2
+      },
+      {
+        question: 'Which of the following is the correct value for Pi?',
+        type: 'multiple_choice',
+        options: ['3.4561', '3.1567', '3.142', '2.316'],
+        answer: 3
+      },
+      {
+        question: 'Mathematics is all about calculations?',
+        type: 'true_or_false',
+        options: ['False', 'True'],
+        answer: 2
+      }
     ]
 
 
   },
 
-    {
-        name: 'General Knowledge',
-        questions: [
-            {
-                question: 'Your project supervisor is a Doctor?',
-                type: 'true_or_false',
-                options: ['Yes', 'No'],
-                answer: 1
-            },
+  {
+    name: 'General Knowledge',
+    questions: [
+      {
+        question: 'Your project supervisor is a Doctor?',
+        type: 'true_or_false',
+        options: ['Yes', 'No'],
+        answer: 1
+      },
 
-            {
-                question: 'What is the opposite of COME',
-                type: 'multiple_choice',
-                options: ['GO', 'STAY', 'WENT', 'DEPART'],
-                answer: 1
-            },
-            {
-                question: 'What is the color of the Nigerian flag',
-                type: 'multiple_choice',
-                options: ['Green White Green', 'Green and White', 'White and Green', 'White Green White'],
-                answer: 2
-            },
-            {
-                question: 'Who is the current president of Nigeria',
-                type: 'multiple_choice',
-                options: ['Barrack Obama', 'Mallam Nasir Elrufai', 'Dr Goodluck Jonathan', 'Alh Namadi Sambo'],
-                answer: 3
-            },
-            {
-                question: 'Madagascar is a country in Africa',
-                type: 'true_or_false',
-                options: ['False', 'True'],
-                answer: 2
-            }
-        ]
+      {
+        question: 'What is the opposite of COME',
+        type: 'multiple_choice',
+        options: ['GO', 'STAY', 'WENT', 'DEPART'],
+        answer: 1
+      },
+      {
+        question: 'What is the color of the Nigerian flag',
+        type: 'multiple_choice',
+        options: ['Green White Green', 'Green and White', 'White and Green', 'White Green White'],
+        answer: 2
+      },
+      {
+        question: 'Who is the current president of Nigeria',
+        type: 'multiple_choice',
+        options: ['Barrack Obama', 'Mallam Nasir Elrufai', 'Dr Goodluck Jonathan', 'Alh Namadi Sambo'],
+        answer: 3
+      },
+      {
+        question: 'Madagascar is a country in Africa',
+        type: 'true_or_false',
+        options: ['False', 'True'],
+        answer: 2
+      }
+    ]
 
 
-    }
+  }
 ];
 
 var categories = {
@@ -216,6 +216,7 @@ return Promise.resolve().then(function () {
     knex.table('api_sessions').truncate(),
     knex.table('api_clients').truncate(),
     knex.table('books').truncate(),
+    knex.table('books_reserves').truncate(),
     knex.table('books_issues').truncate(),
     knex.table('print_documents').truncate(),
     knex.table('print_jobs').truncate(),
@@ -256,7 +257,7 @@ return Promise.resolve().then(function () {
         last_name: i == 0 ? 'Doe' : casual.last_name,
         address: casual.address,
         gender: i == 0 ? 'M' : casual.random_element(['M', 'F']),
-        type: type,
+        type: i == 2 ? 'admin' : type,
         fund: utils.rand(0, 900),
         debt: utils.rand(0, 5000),
         created_at: new Date(),
@@ -403,6 +404,61 @@ return Promise.resolve().then(function () {
     }).then(function () {
       console.log('Done.');
       return true;
+    });
+  })
+  .then(function () {
+    console.log('Seeding "books_reserves" && "books_issues" table');
+    queue = [];
+
+    // Books_reserves
+    [1, 2, 4, 9].forEach(function (id) {
+      queue.push(knex.table('books_reserves').insert({
+        user_id: 1,
+        book_id: id,
+        expire_at: casual.random_element([moment().add(5, 'days'), new Date()]),
+        created_at: new Date()
+      }));
+    });
+
+    // books_issues
+    [3, 5, 7, 8].forEach(function (id) {
+      var borrowed_at = casual.random_element([moment(new Date()), moment.sub(4, 'days')]);
+      var return_due_at = borrowed_at.add(7, 'days');
+      queue.push(knex.table('books_issues').insert({
+        user_id: 1,
+        book_id: id,
+        borrowed_at: borrowed_at,
+        return_due_at: return_due_at,
+        returned_at: null
+      }));
+    })
+
+    return Promise.all(queue).then(function () {
+      console.log('Done.');
+      return true;
+    });
+  })
+  .then(function () {
+    console.log('Seeding "transactions" table');
+    queue = [];
+
+    var title, content;
+
+    for (var i = 0; i < 10; i++) {
+      queue.push(knex.table('transactions').insert({
+        transaction_id: hat()(),
+        user_id: casual.random_element([1, 2]),
+        description: 'Debt Payment',
+        amount: casual.random_element([200, 500, 1500]),
+        status: casual.random_element(['success', 'fail']),
+        message: 'OK',
+        type: 'cashout',
+        created_at: new Date()
+      }));
+    }
+
+    return Promise.all(queue).then(function () {
+      console.log('Done.');
     });
   })
   .then(function () {

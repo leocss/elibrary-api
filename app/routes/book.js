@@ -27,6 +27,9 @@ module.exports = function (app) {
   app.post('/books/:book_id/copies', app.apiHandler(book.registerBookHardCopy));
   app.get('/books/:book_id/copies', app.apiHandler(book.getBookHardCopies));
 
+  // Issue a book to a user.
+  app.post('/books/issue', app.apiHandler(book.issueBook));
+
   // Book Likes
   app.get('/books/:book_id/likes', app.apiHandler(book.getBookLikes));
   app.post('/books/:book_id/like', app.apiHandler(book.addBookUserLike));
