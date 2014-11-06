@@ -208,6 +208,13 @@ module.exports = {
     });
   },
 
+  /**
+   *
+   * @param context
+   * @param req
+   * @param res
+   * @returns {*}
+   */
   getPrintJob: function (context, req, res) {
     return models.PrintJob.findById(req.params.job_id, {
       withRelated: ['documents']

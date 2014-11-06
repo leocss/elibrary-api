@@ -237,6 +237,9 @@ module.exports = {
     gmi.write = Promise.promisify(gmi.write);
     gmi.resize(240, 320);
 
+    var name = req.body.name || req.files.image.name;
+    var savename = utils.safeString(path.basename(name)) + path.extname(name);
+
     return gmi.write(req.files.image.path)
       .then(function () {
         // Move tmp file to final destination.
@@ -247,7 +250,7 @@ module.exports = {
         return fse.removeAsync(req.files.image.path);
       }).then(function () {
         return models.Book.update(req.params.book_id, {
-          preview_image: req.files.image.name
+          preview_image: savename
         });
       }).catch(function (error) {
         throw new errors.ApiError(error.message || error);
@@ -267,6 +270,9 @@ module.exports = {
       throw new errors.MissingParamError(['book']);
     }
 
+    var name = req.body.name || req.files.book.name;
+    var savename = utils.safeString(path.basename(name)) + path.extname(name);
+
     return fse
       .moveAsync(req.files.book.path, [BOOK_FILE_DIR, '/', req.files.book.name].join(''))
       .then(function () {
@@ -274,7 +280,7 @@ module.exports = {
         return fse.removeAsync(req.files.book.path);
       }).then(function () {
         return models.Book.update(req.params.book_id, {
-          file_name: req.files.book.name
+          file_name: savename
         });
       }).catch(function (error) {
         throw new errors.ApiError(error.message || error);
