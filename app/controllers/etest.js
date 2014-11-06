@@ -47,7 +47,7 @@ module.exports = {
   getCourses: function (context, req, res) {
     return models.EtestCourse.findMany(function (qb) {
       if (req.query.order) {
-        switch (order) {
+        switch (req.query.order) {
           case 'latest':
             qb.orderBy('id', 'DESC');
             break;
