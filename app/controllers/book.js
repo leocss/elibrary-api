@@ -1,13 +1,15 @@
 /**
  * @author Laju Morrison <morrelinko@gmail.com>
  */
-var _ = require('lodash'),
+var path = require('path'),
+  _ = require('lodash'),
   moment = require('moment'),
   Promise = require('bluebird'),
   knex = require('knex'),
   fse = Promise.promisifyAll(require('fs-extra')),
   gm = require('gm'),
   bookshelf = require('../bootstrap/database').bookshelf,
+  utils = require('../utils'),
   errors = require('../errors'),
   models = require('../models');
 
@@ -309,10 +311,10 @@ module.exports = {
     }
 
     var name = req.body.name || req.files.book.name;
-    var savename = utils.safeString(path.basename(name)) + path.extname(name);
+    var savename = utils.safeString(path.basename(name, path.extname(name))) + path.extname(name);
 
     return fse
-      .moveAsync(req.files.book.path, [BOOK_FILE_DIR, '/', req.files.book.name].join(''))
+      .moveAsync(req.files.book.path, [BOOK_FILE_DIR, '/', savename].join(''))
       .then(function () {
         // Delete temp file after moving to main location
         return fse.removeAsync(req.files.book.path);

@@ -178,10 +178,6 @@ module.exports = {
   submitSessionResult: function (context, req) {
     var required = ['answers'];
 
-    req.body.answers.forEach(function (answer, index) {
-      req.body.answers[index]['id'] = parseInt(answer.id);
-    });
-
     return models.EtestSession.findById(req.params.session_id, {
       withRelated: ['questions']
     }).then(function (session) {
@@ -189,20 +185,20 @@ module.exports = {
         questions = session.related('questions').models;
 
       questions.forEach(function (question) {
-        selected_answer = _.find(req.body.answers, {'id': question.get('id')})['answer'];
-
-        promises.push(models.EtestSession.update(session.get('id'), {
-          status: 'completed'
-        }));
+        selected_answer = _.find(req.body.answers, {'id': '' + question.get('id')})['answer'];
 
         promises.push(models.EtestSessionQuestion.updateWhere({
           session_id: session.get('id'),
           question_id: question.get('id')
         }, {
           selected_answer: selected_answer,
-          correctly_answered: selected_answer === question.get('answer')
+          correctly_answered: parseInt(selected_answer) == parseInt(question.get('answer'))
         }));
       });
+
+      promises.push(models.EtestSession.update(session.get('id'), {
+        status: 'completed'
+      }));
 
       return Promise.all(promises);
     }).then(function (results) {

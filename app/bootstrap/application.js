@@ -50,7 +50,9 @@ app.use(morgan({
       "\n",
       '  req_body: ' + JSON.stringify(req.body),
       "\n",
-      '  req_query: ' + JSON.stringify(req.query)
+      '  req_query: ' + JSON.stringify(req.query),
+      "\n",
+      '  req_headers: ' + JSON.stringify(req.headers)
     ].join(' ');
   }
 }));

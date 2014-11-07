@@ -22,7 +22,7 @@ var EtestSessionModel = base.Model.extend({
       'etest_sessions_questions',
       'session_id',
       'question_id'
-    );
+    ).withPivot(['selected_answer', 'correctly_answered']);
   }
 });
 
