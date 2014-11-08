@@ -1,5 +1,7 @@
 printjobs/*
 !printjobs/.gitkeep
+print-jobs/*
+!print-jobs/.gitkeep
 books/files/*
 !/files/.gitkeep
 books/images/*
