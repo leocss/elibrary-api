@@ -505,16 +505,11 @@ module.exports = {
     }
 
     var amount = parseInt(req.body.amount);
-    models.User.findById(req.params.user_id).then(function (user) {
-
-      if (parseInt(user.get('fund')) < amount) {
-        throw new errors.ApiError('The amount specified exceeds the users funds.');
-      }
+    return models.User.findById(req.params.user_id).then(function (user) {
 
       return user.update({
-        debt: (parseInt(user.get('debt')) - amount),
-        fund: (parseInt(user.get('fund')) - amount)
-      });
+        debt: (parseInt(user.get('debt')) - amount)
+      }).return(user);
     });
   },
 
