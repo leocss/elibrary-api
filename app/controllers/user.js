@@ -22,8 +22,8 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  getUsers: function (context, req, res) {
-    return new models.User().query(function (qb) {
+  getUsers: function(context, req, res) {
+    return new models.User().query(function(qb) {
 
       if (req.query.filter) {
         if (req.query.filter != '*') {
@@ -56,11 +56,11 @@ module.exports = {
    * @param request
    * @param response
    */
-  getUser: function (context, request, response) {
+  getUser: function(context, request, response) {
     var includes = context.parseIncludes(['printJobs', 'favorites', 'transactions']);
     return models.User.findById(request.params.id, {
       withRelated: includes
-    }).then(function (user) {
+    }).then(function(user) {
       return user.toJSON();
     });
   },
@@ -72,11 +72,11 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  checkUserExists: function (context, req, res) {
+  checkUserExists: function(context, req, res) {
     var required = ['unique_id', 'password'];
     var includes = context.parseIncludes(['printJobs', 'favorites', 'transactions']);
 
-    required.forEach(function (item) {
+    required.forEach(function(item) {
       if (!_.has(req.query, item)) {
         throw new errors.MissingParamError([item]);
       }
@@ -84,7 +84,9 @@ module.exports = {
 
     return models.User.findOne({
       unique_id: req.query.unique_id
-    }, {require: false}).tap(function (user) {
+    }, {
+      require: false
+    }).tap(function(user) {
       if (!user) {
         throw new errors.ObjectNotFoundError('User not found.');
       }
@@ -92,7 +94,7 @@ module.exports = {
       if (!user.checkPassword(req.query.password)) {
         throw new errors.ApiError('Unable to authenticate user with provided credentials.');
       }
-    }).then(function (user) {
+    }).then(function(user) {
       return user;
     });
   },
@@ -103,7 +105,7 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  updateUser: function (context, req) {
+  updateUser: function(context, req) {
     return models.User.update(req.params.user_id, _.pick(req.body, [
       'first_name', 'last_name', 'email', 'address',
       'gender', 'phone', 'rfid', 'type', 'unique_id'
@@ -114,23 +116,24 @@ module.exports = {
    * @param context
    * @param request
    */
-  createUser: function (context, req) {
+  createUser: function(context, req) {
     var allowed = [
       'first_name', 'last_name', 'password', 'phone', 'email',
       'address', 'gender', 'unique_id', 'rfid', 'type'
     ];
+
     var data = _.pick(req.body, allowed);
 
-    _.omit(allowed, ['phone', 'address']) // Required fields (just omit the optional ones)
-      .forEach(function (item) {
-        if (!_.has(data, item)) {
-          throw new errors.MissingParamError([item]);
-        }
+    // Required fields (just omit the optional ones)
+    _.forEach(_.omit(allowed, ['phone', 'address']), function(item) {
+      if (!_.has(data, item)) {
+        throw new errors.MissingParamError([item]);
+      }
 
-        if (_.isEmpty(data[item])) {
-          throw new errors.ApiError('"' + item + '" cannot be empty.');
-        }
-      });
+      if (_.isEmpty(data[item])) {
+        throw new errors.ApiError('"' + item + '" cannot be empty.');
+      }
+    });
 
     return models.User.create(data);
   },
@@ -141,7 +144,7 @@ module.exports = {
    * @param context
    * @param request
    */
-  uploadPhoto: function (context, req) {
+  uploadPhoto: function(context, req) {
     if (_.isUndefined(req.files.photo) || _.isNull(req.files.photo)) {
       throw new errors.MissingParamError(['photo']);
     }
@@ -152,15 +155,15 @@ module.exports = {
     gmi.resize(480, 640);
 
     return gmi.write(req.files.photo.path)
-      .then(function () {
+      .then(function() {
         // Move tmp file to final destination.
         return fse.moveAsync(req.files.photo.path, [USER_PHOTO_DIR, req.files.photo.name].join('/'));
       })
-      .then(function () {
+      .then(function() {
         // Delete temp file after moving to main location
         return fse.removeAsync(req.files.photo.path);
-      }).then(function () {
-        return models.User.findById(req.params.user_id).tap(function (user) {
+      }).then(function() {
+        return models.User.findById(req.params.user_id).tap(function(user) {
           if (user.get('photo') != null) {
             // Delete the old user photo file...
             return fse.removeAsync([USER_PHOTO_DIR, user.get('photo')].join('/'));
@@ -168,12 +171,12 @@ module.exports = {
 
           return true;
         });
-      }).then(function (user) {
+      }).then(function(user) {
         // Update the user 'photo' field
         return user.update({
           photo: req.files.photo.name
         });
-      }).catch(function (error) {
+      }).catch(function(error) {
         throw new errors.ApiError(error.message || error);
       });
   },
@@ -183,8 +186,10 @@ module.exports = {
    * @param context
    * @param request
    */
-  deleteUser: function (context, req) {
-    return models.User.destroy({id: req.params.id});
+  deleteUser: function(context, req) {
+    return models.User.destroy({
+      id: req.params.id
+    });
   },
 
   /**
@@ -196,7 +201,7 @@ module.exports = {
    * @param request
    * @param response
    */
-  getPrintJobs: function (context, request, response) {
+  getPrintJobs: function(context, request, response) {
     var documentIndex;
     var includes = context.parseIncludes(['documents']);
 
@@ -207,7 +212,7 @@ module.exports = {
 
     return models.User.findById(request.params.user_id, {
       withRelated: includes
-    }).then(function (user) {
+    }).then(function(user) {
       return user.related('printJobs');
     });
   },
@@ -219,7 +224,7 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  getPrintJob: function (context, req, res) {
+  getPrintJob: function(context, req, res) {
     return models.PrintJob.findById(req.params.job_id, {
       withRelated: ['documents']
     });
@@ -231,8 +236,8 @@ module.exports = {
    * @param request
    * @param response
    */
-  createPrintJob: function (context, req, res) {
-    _.forEach(['name'], function (item) {
+  createPrintJob: function(context, req, res) {
+    _.forEach(['name'], function(item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
@@ -246,7 +251,9 @@ module.exports = {
       id: req.body.user_id + '-' + hat(),
       user_id: req.params.user_id,
       name: req.body.name
-    }, {method: 'insert'});
+    }, {
+      method: 'insert'
+    });
   },
 
   /**
@@ -256,16 +263,16 @@ module.exports = {
    * @param req
    * @param res
    */
-  uploadPrintJobDocument: function (context, req, res) {
+  uploadPrintJobDocument: function(context, req, res) {
     if (_.isUndefined(req.files.document)) {
       throw new errors.MissingParamError(['document']);
     }
 
     var savename = req.params.user_id + '-' + req.files.document.name;
-    return fse.moveAsync(req.files.document.path, PRINT_JOB_DIR + '/' + savename).then(function () {
+    return fse.moveAsync(req.files.document.path, PRINT_JOB_DIR + '/' + savename).then(function() {
       // Delete temp file after moving to main location
       return fse.removeAsync(req.files.document.path);
-    }).then(function () {
+    }).then(function() {
       return models.PrintDocument.create({
         user_id: req.params.user_id,
         job_id: req.params.job_id,
@@ -274,7 +281,7 @@ module.exports = {
         file_size: req.files.document.size,
         file_type: req.files.document.mimetype
       });
-    }).catch(function (error) {
+    }).catch(function(error) {
       throw new errors.ApiError(error.message || error);
     });
   },
@@ -289,25 +296,31 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  deletePrintJobDocument: function (context, req, res) {
+  deletePrintJobDocument: function(context, req, res) {
     var document;
 
-    models.PrintDocument.findById(req.params.document_id).then(function (result) {
+    models.PrintDocument.findById(req.params.document_id).then(function(result) {
       document = result;
       return result.destroy();
-    }).then(function () {
+    }).then(function() {
       return fse.removeAsync(path.join(PRINT_JOB_DIR + '/', document.get('file_path')));
-    }).then(function () {
+    }).then(function() {
       return document.get('id');
     });
   },
 
-  getPrintJobDocument: function (context, req, res) {
+  getPrintJobDocument: function(context, req, res) {
     return models.PrintDocument.findById(req.params.document_id);
   },
 
-  getPrintJobDocuments: function (context, req, res) {
-    return models.PrintDocument.findMany({where: {job_id: req.params.job_id}}, {require: false});
+  getPrintJobDocuments: function(context, req, res) {
+    return models.PrintDocument.findMany({
+      where: {
+        job_id: req.params.job_id
+      }
+    }, {
+      require: false
+    });
   },
 
   /**
@@ -317,7 +330,7 @@ module.exports = {
    * @param request
    * @param response
    */
-  deletePrintJob: function (context, req, resp) {
+  deletePrintJob: function(context, req, resp) {
     return models.PrintJob.destroy({
       id: req.params.job_id,
       user_id: req.params.user_id
@@ -330,12 +343,12 @@ module.exports = {
    * @param request
    * @param response
    */
-  getFavorites: function (context, req, res) {
+  getFavorites: function(context, req, res) {
     var includes = context.parseIncludes(['object']);
     if (req.query.type) {
 
     }
-    return models.UserFavorite.findMany(function (qb) {
+    return models.UserFavorite.findMany(function(qb) {
       qb.where('user_id', '=', req.params.user_id);
       if (req.query.type) {
         qb.where('object_type', req.query.type);
@@ -362,7 +375,7 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  deleteFavorite: function (context, req, res) {
+  deleteFavorite: function(context, req, res) {
     return models.UserFavorite.destroy({
       user_id: req.params.user_id,
       id: req.params.favorite_id
@@ -376,9 +389,9 @@ module.exports = {
    * @param req
    * @param res
    */
-  addFavorite: function (context, req, res) {
+  addFavorite: function(context, req, res) {
     var required = ['object_id', 'object_type'];
-    required.forEach(function (item) {
+    required.forEach(function(item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
@@ -396,12 +409,14 @@ module.exports = {
    * @param req
    * @param res
    */
-  getLikes: function (context, req, res) {
+  getLikes: function(context, req, res) {
     return models.Like.findMany({
       where: {
         user_id: req.params.user_id
       }
-    }, {require: false});
+    }, {
+      require: false
+    });
   },
 
   /**
@@ -411,10 +426,10 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  logTransaction: function (context, req) {
+  logTransaction: function(context, req) {
     var data = {};
     var required = ['transaction_id', 'type', 'description', 'amount', 'status', 'message'];
-    required.forEach(function (item) {
+    required.forEach(function(item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
@@ -427,9 +442,11 @@ module.exports = {
     return models.Transaction.create(data);
   },
 
-  getReservedBooks: function (context, req) {
+  getReservedBooks: function(context, req) {
     var includes = _.merge(context.parseIncludes(['reservedBooks.category']), ['reservedBooks']);
-    return models.User.findById(req.params.user_id, {withRelated: includes}).then(function (user) {
+    return models.User.findById(req.params.user_id, {
+      withRelated: includes
+    }).then(function(user) {
       return user.related('reservedBooks');
     });
   },
@@ -440,12 +457,14 @@ module.exports = {
    * @param context
    * @param req
    */
-  getTransactions: function (context, req) {
+  getTransactions: function(context, req) {
     return models.Transaction.findMany({
       where: {
         user_id: req.params.user_id
       }
-    }, {require: false});
+    }, {
+      require: false
+    });
   },
 
   /**
@@ -454,12 +473,12 @@ module.exports = {
    * @param context
    * @param req
    */
-  fundAccount: function (context, req) {
+  fundAccount: function(context, req) {
     if (req.body.amount == undefined) {
       throw new errors.MissingParamError(['amount']);
     }
 
-    models.User.findById(req.params.user_id).then(function (user) {
+    models.User.findById(req.params.user_id).then(function(user) {
       return user.update({
         fund: parseInt(user.get('fund')) + parseInt(req.body.amount)
       });
@@ -472,7 +491,7 @@ module.exports = {
    * @param context
    * @param req
    */
-  incureDept: function (context, req) {
+  incureDept: function(context, req) {
     if (req.body.type == undefined) {
       throw new errors.MissingParamError(['type']);
     }
@@ -484,7 +503,7 @@ module.exports = {
         break;
     }
 
-    models.User.findById(req.params.user_id).then(function (user) {
+    models.User.findById(req.params.user_id).then(function(user) {
       return user.update({
         debt: parseInt(user.get('debt')) + charges
       });
@@ -499,13 +518,13 @@ module.exports = {
    * @param context
    * @param req
    */
-  resolveDept: function (context, req) {
+  resolveDept: function(context, req) {
     if (req.body.amount == undefined) {
       throw new errors.MissingParamError(['amount']);
     }
 
     var amount = parseInt(req.body.amount);
-    return models.User.findById(req.params.user_id).then(function (user) {
+    return models.User.findById(req.params.user_id).then(function(user) {
 
       return user.update({
         debt: (parseInt(user.get('debt')) - amount)
@@ -521,9 +540,13 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  getEtestSessions: function (context, req, res) {
+  getEtestSessions: function(context, req, res) {
     return models.EtestSession.findMany({
-      where: {user_id: req.params.user_id}
-    }, {require: false});
+      where: {
+        user_id: req.params.user_id
+      }
+    }, {
+      require: false
+    });
   }
 };
