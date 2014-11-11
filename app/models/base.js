@@ -82,13 +82,13 @@ var BaseModel = bookshelf.Model.extend({
 
   update: function(id, attributes, options) {
     return this.findOne({id: id}, options).then(function(model) {
-      return model.save(attributes, options);
+      return model.save(attributes, _.merge(options, {patch: true}));
     });
   },
 
   updateWhere: function(where, attributes, options) {
     return this.findOne(where, options).then(function(model) {
-      return model.save(attributes);
+      return model.update(attributes, options);
     });
   },
 

@@ -13,9 +13,9 @@ module.exports = {
    * @param context
    * @param req
    */
-  createCourse: function (context, req) {
+  createCourse: function(context, req) {
     var required = ['name', 'description', 'time_length'];
-    required.forEach(function (item) {
+    required.forEach(function(item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
@@ -30,7 +30,7 @@ module.exports = {
    * @param req
    * @returns {*|IDBRequest|void}
    */
-  updateCourse: function (context, req) {
+  updateCourse: function(context, req) {
     var required = ['name', 'description', 'time_length'];
 
     return models.EtestCourse.update(req.params.course_id, _.pick(req.body, required));
@@ -44,8 +44,8 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  getCourses: function (context, req, res) {
-    return models.EtestCourse.findMany(function (qb) {
+  getCourses: function(context, req, res) {
+    return models.EtestCourse.findMany(function(qb) {
       if (req.query.order) {
         switch (req.query.order) {
           case 'latest':
@@ -57,7 +57,9 @@ module.exports = {
       if (req.query.limit) {
         qb.limit(parseInt(req.query.limit));
       }
-    }, {require: false});
+    }, {
+      require: false
+    });
   },
 
   /**
@@ -66,7 +68,7 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  getCourse: function (context, req) {
+  getCourse: function(context, req) {
     var includes = context.parseIncludes(['sessions', 'questions']);
     return models.EtestCourse.findById(req.params.course_id, {
       withRelated: includes
@@ -79,12 +81,14 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  getQuestions: function (context, req) {
+  getQuestions: function(context, req) {
     return models.EtestQuestion.findMany({
       where: {
         course_id: req.params.course_id
       }
-    }, {require: false});
+    }, {
+      require: false
+    });
   },
 
   /**
@@ -92,10 +96,10 @@ module.exports = {
    * @param context
    * @param req
    */
-  createQuestion: function (context, req) {
+  createQuestion: function(context, req) {
     var required = ['question', 'type', 'options', 'answer'];
     var data = {};
-    required.forEach(function (item) {
+    required.forEach(function(item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
@@ -117,29 +121,31 @@ module.exports = {
    * @param context
    * @param req
    */
-  createSession: function (context, req) {
+  createSession: function(context, req) {
     var session, questions;
     var required = ['user_id', 'course_id', 'question_limit'];
-    required.forEach(function (item) {
+    required.forEach(function(item) {
       if (!_.has(req.body, item)) {
         throw new errors.MissingParamError([item]);
       }
     });
 
     // First create a session
-    return models.EtestSession.create(_.pick(req.body, ['user_id', 'course_id'])).then(function (result) {
+    return models.EtestSession.create(_.pick(req.body, ['user_id', 'course_id'])).then(function(result) {
       session = result;
 
       // Then select random x questions
-      return models.EtestQuestion.findMany(function (qb) {
+      return models.EtestQuestion.findMany(function(qb) {
         qb.where('course_id', '=', session.get('course_id'));
         qb.limit(parseInt(req.body.question_limit));
         qb.orderByRaw('rand()');
-      }, {require: false})
-    }).then(function (result) {
+      }, {
+        require: false
+      })
+    }).then(function(result) {
       var promises = [];
       // Link question & user & session
-      result.models.forEach(function (question) {
+      result.models.forEach(function(question) {
         promises.push(models.EtestSessionQuestion.create({
           question_id: question.get('id'),
           session_id: session.get('id'),
@@ -149,7 +155,7 @@ module.exports = {
       });
 
       return Promise.all(promises);
-    }).then(function () {
+    }).then(function() {
       return session;
     });
   },
@@ -161,7 +167,7 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  getSession: function (context, req) {
+  getSession: function(context, req) {
     var includes = context.parseIncludes(['questions'])
     return models.EtestSession.findById(req.params.session_id, {
       withRelated: includes
@@ -175,24 +181,28 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  submitSessionResult: function (context, req) {
+  submitSessionResult: function(context, req) {
     var required = ['answers'];
 
     return models.EtestSession.findById(req.params.session_id, {
       withRelated: ['questions']
-    }).then(function (session) {
-      var promises = [], selected_answer,
+    }).then(function(session) {
+      var promises = [],
+        selected_answer,
         questions = session.related('questions').models;
 
-      questions.forEach(function (question) {
-        selected_answer = _.find(req.body.answers, {'id': '' + question.get('id')})['answer'];
+      questions.forEach(function(question) {
+        selected_answer = _.find(req.body.answers, {
+          'id': '' + question.get('id')
+        })['answer'];
 
-        promises.push(models.EtestSessionQuestion.updateWhere({
-          session_id: session.get('id'),
-          question_id: question.get('id')
-        }, {
+        promises.push(session.questions().updatePivot({
           selected_answer: selected_answer,
           correctly_answered: parseInt(selected_answer) == parseInt(question.get('answer'))
+        }, {
+          query: function(qb) {
+            qb.where('question_id', '=', question.get('id'));
+          }
         }));
       });
 
@@ -201,8 +211,10 @@ module.exports = {
       }));
 
       return Promise.all(promises);
-    }).then(function (results) {
-      return {success: true};
+    }).then(function(results) {
+      return {
+        success: true
+      };
     });
   },
 
@@ -212,9 +224,11 @@ module.exports = {
    * @param req
    * @returns {*}
    */
-  deleteSession: function (context, req) {
-    return models.EtestSession.findById(req.params.session_id).then(function () {
-      return {success: true};
+  deleteSession: function(context, req) {
+    return models.EtestSession.findById(req.params.session_id).then(function() {
+      return {
+        success: true
+      };
     });
   }
 };
