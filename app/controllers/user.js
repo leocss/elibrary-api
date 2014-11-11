@@ -443,7 +443,12 @@ module.exports = {
   },
 
   getReservedBooks: function(context, req) {
-    var includes = _.merge(context.parseIncludes(['reservedBooks.category']), ['reservedBooks']);
+    var includes = context.parseIncludes(['book', 'category']);
+    includes.forEach(function(item, index) {
+      includes[index] = 'reservedBooks.' + item;
+    });
+
+    includes.push('reservedBooks');
     return models.User.findById(req.params.user_id, {
       withRelated: includes
     }).then(function(user) {
