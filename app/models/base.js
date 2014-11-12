@@ -108,5 +108,6 @@ var BaseCollection = bookshelf.Collection.extend({});
 
 module.exports = {
   Model: BaseModel,
-  Collection: BaseCollection
+  Collection: BaseCollection,
+  Knex: bookshelf.knex
 };

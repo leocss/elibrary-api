@@ -40,5 +40,6 @@ module.exports = {
   EtestSessionQuestion: require('./etest-session-question').EtestSessionQuestion,
 
   Model: require('./base').Model,
-  Collection: require('./base').Collection
+  Collection: require('./base').Collection,
+  Knex: require('./base').Knex
 };

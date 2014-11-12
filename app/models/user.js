@@ -48,6 +48,10 @@ var UserModel = base.Model.extend({
     model.set('password', bcrypt.hashSync(model.get('password'), 8));
   },
 
+  isStudent: function() {
+    return this.get('type') == 'student';
+  },
+
   /**
    * Validates a password
    * @param {String} password
