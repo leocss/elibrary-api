@@ -388,9 +388,9 @@ module.exports = {
    * @param req
    * @param res
    */
-  updateBook: function (context, req, res) {
+  updateBook: function (context, req) {
     return models.Book.update(req.params.id, _.pick(req.body, [
-      'title', 'author', 'edition', 'overview', 'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
+      'title', 'author', 'edition', 'overview', 'category_id', 'copies', 'published_at'
     ]));
   },
 
