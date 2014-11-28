@@ -5,7 +5,7 @@
  * used during development process only;
  *
  * @author Laju Morrison <morrelinko@gmail.com>
- *     @author Elijah Abolaji <cloudnigeria@gmail.com>
+ * @author Elijah Abolaji <cloudnigeria@gmail.com>
  */
 
 var knex = require('knex'),
