@@ -10,8 +10,6 @@ var BookModel = base.Model.extend({
   tableName: 'books',
   hasTimestamps: true,
 
-  virtuals: {},
-
   permitted: [
     'id',
     'title',
@@ -19,10 +17,8 @@ var BookModel = base.Model.extend({
     'author',
     'edition',
     'overview',
+    'isbn',
     'preview_image',
-    'has_soft_copy',
-    'borrow_count',
-    'view_count',
     'published_at', // Holds the time the book was published (Month & Year)
     'created_at', // This holds the time the book was added to the library,
     'updated_at'
@@ -30,20 +26,20 @@ var BookModel = base.Model.extend({
 
   virtuals: {
     preview_image_url: function () {
-      if (this.get('preview_image') != null) {
+      if (this.get('preview_image') !== null) {
         return config.server.url() + '/files/books/images/' + this.get('preview_image');
       }
     },
 
-    book_file_url: function() {
+    book_file_url: function () {
       if (this.get('file_name')) {
         return config.server.url() + '/files/books/files/' + this.get('file_name');
       }
     }
   },
 
-  saving: function (model, attributes, options) {
-    if (this.hasChanged('published_at') && this.get('published_at').split('-').length == 2) {
+  saving: function () {
+    if (this.hasChanged('published_at') && this.get('published_at').split('-').length === 2) {
       this.set('published_at', moment(this.get('published_at'), 'YYYY-MM').format('YYYY-MM-DD HH:mm:ss'));
     }
   },
@@ -52,7 +48,7 @@ var BookModel = base.Model.extend({
     return this.belongsTo(require('./category').Category, 'category_id').where('object_type', '=', 'books');
   },
 
-  copies: function() {
+  copies: function () {
     return this.hasMany(require('./book-copy').BookCopy, 'book_id');
   }
 });

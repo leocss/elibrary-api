@@ -1,9 +1,13 @@
 /**
  * @author Laju Morrison <morrelinko@gmail.com>
  */
+
+var spawn = require('child_process').spawn;
+var fs = require('fs');
 var path = require('path'),
   _ = require('lodash'),
   moment = require('moment'),
+  spindrift = require('spindrift'),
   Promise = require('bluebird'),
   knex = require('knex'),
   fse = Promise.promisifyAll(require('fs-extra')),
@@ -37,18 +41,18 @@ module.exports = {
           type = parts.reverse().join('_');
 
         switch (type) {
-          case 'most_borrowed':
-            qb.orderBy('borrow_count', 'desc');
-            break;
-          case 'latest':
-            qb.orderBy('id', 'desc');
-            break;
-          case 'most_viewed':
-            qb.orderBy('views_count', 'desc');
-            break;
-          case 'most_liked':
-            qb.orderBy('likes_count', 'desc');
-            break;
+        case 'most_borrowed':
+          qb.orderBy('borrow_count', 'desc');
+          break;
+        case 'latest':
+          qb.orderBy('id', 'desc');
+          break;
+        case 'most_viewed':
+          qb.orderBy('views_count', 'desc');
+          break;
+        case 'most_liked':
+          qb.orderBy('likes_count', 'desc');
+          break;
         }
 
         qb.limit(limit);
@@ -76,16 +80,16 @@ module.exports = {
       if (context.user) {
         qb.select(
           knex.raw('(' +
-          'SELECT COUNT(likes.id) FROM likes ' +
-          'WHERE object_type = "books" AND object_id = books.id AND user_id = "' + context.user.get('id') + '"' +
-          ') AS context_user_liked')
+            'SELECT COUNT(likes.id) FROM likes ' +
+            'WHERE object_type = "books" AND object_id = books.id AND user_id = "' + context.user.get('id') + '"' +
+            ') AS context_user_liked')
         );
 
         qb.select(
           knex.raw('(' +
-          'SELECT COUNT(views.id) FROM views ' +
-          'WHERE object_type = "books" AND object_id = views.id AND user_id = "' + context.user.get('id') + '"' +
-          ') AS context_user_viewed')
+            'SELECT COUNT(views.id) FROM views ' +
+            'WHERE object_type = "books" AND object_id = views.id AND user_id = "' + context.user.get('id') + '"' +
+            ') AS context_user_viewed')
         );
       }
     });
@@ -107,7 +111,9 @@ module.exports = {
   getBook: function (context, req, res) {
     var includes = context.parseIncludes(['category', 'copies']);
 
-    return models.Book.findOne({id: req.params.book_id}, {
+    return models.Book.findOne({
+      id: req.params.book_id
+    }, {
       withRelated: includes
     }, function (qb) {
 
@@ -122,16 +128,16 @@ module.exports = {
       if (context.user) {
         qb.select(
           knex.raw('(' +
-          'SELECT COUNT(likes.id) FROM likes ' +
-          'WHERE object_type = "books" AND object_id = "' + req.params.book_id + '" AND user_id = "' + context.user.get('id') + '"' +
-          ') AS context_user_liked')
+            'SELECT COUNT(likes.id) FROM likes ' +
+            'WHERE object_type = "books" AND object_id = "' + req.params.book_id + '" AND user_id = "' + context.user.get('id') + '"' +
+            ') AS context_user_liked')
         );
 
         qb.select(
           knex.raw('(' +
-          'SELECT COUNT(views.id) FROM views ' +
-          'WHERE object_type = "books" AND object_id = "' + req.params.book_iid + '" AND user_id = "' + context.user.get('id') + '"' +
-          ') AS context_user_viewed')
+            'SELECT COUNT(views.id) FROM views ' +
+            'WHERE object_type = "books" AND object_id = "' + req.params.book_iid + '" AND user_id = "' + context.user.get('id') + '"' +
+            ') AS context_user_viewed')
         );
       }
     });
@@ -145,12 +151,12 @@ module.exports = {
    * @param {Object} res
    * @returns {*}
    */
-  getCategories: function (context, req, res) {
+  getCategories: function (context, req) {
     var promises = [],
       includes = context.parseIncludes(['books']);
 
     return models.Category.forBooks().then(function (result) {
-      if (includes.indexOf('books') != -1) {
+      if (includes.indexOf('books') !== -1) {
         result.forEach(function (category) {
           promises.push(category.related('books').query(function (qb) {
             qb.select('*');
@@ -162,9 +168,9 @@ module.exports = {
             if (context.user) {
               qb.select(
                 knex.raw('(' +
-                'SELECT COUNT(likes.id) FROM likes ' +
-                'WHERE object_type = "books" AND object_id = books.id AND user_id = "' + context.user.get('id') + '"' +
-                ') AS context_user_liked')
+                  'SELECT COUNT(likes.id) FROM likes ' +
+                  'WHERE object_type = "books" AND object_id = books.id AND user_id = "' + context.user.get('id') + '"' +
+                  ') AS context_user_liked')
               );
             }
 
@@ -187,7 +193,7 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  getRandomBook: function (context, req, res) {
+  getRandomBook: function (context) {
     var includes = context.parseIncludes(['category']);
 
     return new models.Book({}).query(function (qb) {
@@ -197,7 +203,9 @@ module.exports = {
         knex.raw('(SELECT COUNT(id) FROM likes WHERE object_type = "books" AND object_id = books.id) AS likes_count'));
       qb.select(
         knex.raw('(SELECT COUNT(id) FROM views WHERE object_type = "books" AND object_id = books.id) AS views_count'));
-    }).fetch({withRelated: includes});
+    }).fetch({
+      withRelated: includes
+    });
   },
 
   /**
@@ -219,10 +227,10 @@ module.exports = {
    * @param req
    * @param res
    */
-  addBook: function (context, req, res) {
+  addBook: function (context, req) {
     return models.Book.create(_.pick(req.body, [
-      'title', 'author', 'edition', 'overview',
-      'has_hard_copy', 'has_soft_copy', 'copies', 'published_at'
+      'title', 'author', 'edition', 'overview', 'isbn', 'published_at',
+      'category_id'
     ]));
   },
 
@@ -256,8 +264,12 @@ module.exports = {
   getBookHardCopies: function (context, req) {
     var includes = context.parseIncludes(['book']);
     return models.BookCopy.findMany({
-      where: {book_id: req.params.book_id}
-    }, {withRelated: includes});
+      where: {
+        book_id: req.params.book_id
+      }
+    }, {
+      withRelated: includes
+    });
   },
 
   /**
@@ -265,10 +277,9 @@ module.exports = {
    *
    * @param context
    * @param req
-   * @param res
    * @returns {*}
    */
-  uploadBookImage: function (context, req, res) {
+  uploadBookImage: function (context, req) {
     if (_.isUndefined(req.files.image)) {
       throw new errors.MissingParamError(['image']);
     }
@@ -278,7 +289,7 @@ module.exports = {
     gmi.resize(240, 320);
 
     var name = req.body.name || req.files.image.name;
-    var savename = utils.safeString(path.basename(name)) + path.extname(name);
+    var savename = utils.md5(path.basename(name)) + path.extname(name);
 
     return gmi.write(req.files.image.path)
       .then(function () {
@@ -305,25 +316,64 @@ module.exports = {
    * @param res
    * @returns {*}
    */
-  uploadBookFile: function (context, req, res) {
+  uploadBookFile: function (context, req) {
     if (_.isUndefined(req.files.book) || _.isNull(req.files.book)) {
       throw new errors.MissingParamError(['book']);
     }
 
     var name = req.body.name || req.files.book.name;
-    var savename = utils.safeString(path.basename(name, path.extname(name))) + path.extname(name);
+    var savename = utils.md5(path.basename(name, path.extname(name))) + path.extname(name);
+    var savepath = [BOOK_FILE_DIR, '/', savename].join('');
 
     return fse
-      .moveAsync(req.files.book.path, [BOOK_FILE_DIR, '/', savename].join(''))
+      .moveAsync(req.files.book.path, savepath)
       .then(function () {
         // Delete temp file after moving to main location
         return fse.removeAsync(req.files.book.path);
-      }).then(function () {
+      })
+      .catch(function (err) {
+        if (err.cause.code === 'EEXIST') {
+          return true;
+        }
+
+        throw err;
+      })
+      .then(function () {
         return models.Book.update(req.params.book_id, {
           file_name: savename
         });
-      }).catch(function (error) {
-        throw new errors.ApiError(error.message || error);
+      })
+      .then(function () {
+        var resolver = Promise.pending();
+        // If no preview image has been defined,
+        // Extract and use the first page of the pdf file.
+
+        var gmi;
+        var convert = spawn('gm', ['convert', savepath, '-scene', '1', BOOK_IMG_DIR + '/' + savename + '.png']);
+
+        convert.on('close', function () {
+          // Resize extracted image file
+          gmi = gm(BOOK_IMG_DIR + '/' + savename + '.png');
+          gmi.write = Promise.promisify(gmi.write);
+          gmi.resize(240, 320);
+
+          gmi.write(BOOK_IMG_DIR + '/' + savename + '.png')
+            .then(function () {
+              return models.Book.update(req.params.book_id, {
+                preview_image: savename + '.png'
+              });
+            }).then(function () {
+              resolver.resolve(true);
+            })
+            .catch(function (err) {
+              resolver.reject(err);
+            });
+        });
+
+        return resolver.promise;
+      })
+      .catch(function (err) {
+        throw new errors.ApiError(err.message || err);
       });
   },
 
@@ -392,7 +442,10 @@ module.exports = {
       if (req.query.limit) {
         qb.limit(parseInt(req.query.limit));
       }
-    }, {withRelated: includes, require: false});
+    }, {
+      withRelated: includes,
+      require: false
+    });
   },
 
   /**
@@ -415,13 +468,17 @@ module.exports = {
     var duration = req.body.duration || 7;
     var book_id = req.params.book_id;
 
-    return models.Book.findById(book_id, {withRelated: ['copies']})
+    return models.Book.findById(book_id, {
+        withRelated: ['copies']
+      })
       // Ensure that this user has not already reserved this book
       .tap(function (book) {
         return models.BookReserve.findOne({
           user_id: context.user.get('id'),
           book_id: book_id
-        }, {require: false}).then(function (reserve) {
+        }, {
+          require: false
+        }).then(function (reserve) {
           if (reserve) {
             throw new errors.ApiError('This user has already reserved this book.');
           }
@@ -462,7 +519,9 @@ module.exports = {
         object_type: 'books',
         object_id: req.params.id
       }
-    }, {require: false});
+    }, {
+      require: false
+    });
   },
 
   /**
@@ -483,7 +542,7 @@ module.exports = {
     data.object_type = 'books';
     data.object_id = parseInt(req.params.book_id);
 
-    // Try to retrieve the liked data, the orm 
+    // Try to retrieve the liked data, the orm
     // throws an error if it doesn't find a result.
     // Only then, will we create the like;
     return models.Like.findOne({
@@ -512,7 +571,9 @@ module.exports = {
       user_id: context.user.get('id'),
       object_id: req.params.book_id,
       object_type: 'books'
-    }).return({success: true});
+    }).return({
+      success: true
+    });
   },
 
   /**
@@ -529,7 +590,9 @@ module.exports = {
         object_type: 'books',
         object_id: req.params.book_id
       }
-    }, {require: false});
+    }, {
+      require: false
+    });
   },
 
   /**

@@ -23,6 +23,7 @@
     "morgan": "~1.0",
     "multer": "~0.1",
     "mysql": "~2.4",
+    "spindrift": "0.0.6",
     "winston": "~0.7"
   },
   "devDependencies": {

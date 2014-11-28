@@ -2,8 +2,9 @@
  * @author Laju Morrison <morrelinko@gmail.com>
  */
 
-var _ = require('lodash'),
-  casual = require('casual');
+var crypto = require('crypto');
+var _ = require('lodash');
+var casual = require('casual');
 
 module.exports = {
   /**
@@ -62,5 +63,9 @@ module.exports = {
     }
 
     return res.join('');
+  },
+
+  md5: function (str) {
+    return crypto.createHash('md5').update(str).digest('hex');
   }
 };

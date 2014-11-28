@@ -65,5 +65,8 @@ app.run = function() {
   return app.listen(config.server.port);
 };
 
+process.on('error', function() {
+  console.log(arguments);
+});
 
 module.exports = app;
