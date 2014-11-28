@@ -7,7 +7,6 @@ var fs = require('fs');
 var path = require('path'),
   _ = require('lodash'),
   moment = require('moment'),
-  spindrift = require('spindrift'),
   Promise = require('bluebird'),
   knex = require('knex'),
   fse = Promise.promisifyAll(require('fs-extra')),
