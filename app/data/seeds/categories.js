@@ -11,6 +11,12 @@ var models = require('../../models');
 var categories = [{
   title: 'Signals',
   description: 'Signals'
+},{
+  title: 'Electronics',
+  description: 'Electronics'
+},{
+  title: 'Robotics',
+  description: 'Robotics'
 }];
 
 module.exports = function () {

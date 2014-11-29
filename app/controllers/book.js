@@ -174,6 +174,7 @@ module.exports = {
             }
 
             qb.limit(parseInt(req.query.books_limit || 5));
+            qb.orderBy('id', 'desc');
           }).fetch());
         });
       }
