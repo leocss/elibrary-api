@@ -25,7 +25,7 @@ Password.methods.completeFlow = function (req) {
     input = _.extend(req.query, req.body);
     token = {
       token_type: TOKEN_TYPE,
-      expires_in: 3600 * 24
+      expires_in: 3600 * 24 * 30 //expires in a month
     };
 
     // Begin user validation
