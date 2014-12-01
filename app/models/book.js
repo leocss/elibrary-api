@@ -27,13 +27,16 @@ var BookModel = base.Model.extend({
   virtuals: {
     preview_image_url: function () {
       if (this.get('preview_image') !== null) {
-        return config.server.url() + '/files/books/images/' + this.get('preview_image');
+        //return config.server.url() + '/files/books/images/' + this.get('preview_image');
+        return 'http://127.0.0.1/elibrary-api/public/files/books/images/' + this.get('preview_image');
+
       }
     },
 
     book_file_url: function () {
       if (this.get('file_name')) {
-        return config.server.url() + '/files/books/files/' + this.get('file_name');
+        //return config.server.url() + '/files/books/files/' + this.get('file_name');
+        return 'http://127.0.0.1/elibrary-api/public/files/books/files/' + this.get('file_name');
       }
     }
   },
